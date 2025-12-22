@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="212"
+   height="25"
+   viewBox="0 0 56.091665 6.6145833"
+   version="1.1"
+   id="svg384"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="logo.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview386"
+     pagecolor="#ffffff"
+     bordercolor="#cccccc"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="1"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="3.1358025"
+     inkscape:cx="108.74409"
+     inkscape:cy="79.246063"
+     inkscape:window-width="960"
+     inkscape:window-height="1008"
+     inkscape:window-x="1920"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs381" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g24933-3-5"
+       transform="matrix(0.55986245,0,0,0.55986245,-49.336699,-8.1825228)"
+       style="display:inline;fill:#ffffff">
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:14.3598px;line-height:1.25;font-family:sans-serif;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.358998"
+         x="101.00804"
+         y="23.889692"
+         id="text1369-7-6-4"><tspan
+           sodipodi:role="line"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.3598px;font-family:Dhurjati;-inkscape-font-specification:'Dhurjati, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#ffffff;stroke-width:0.358998"
+           x="101.00804"
+           y="23.889692"
+           id="tspan17346-9-9">aberta<tspan
+   style="fill:#00ff00"
+   id="tspan45501-2">mente</tspan></tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:8.60245px;line-height:1.25;font-family:sans-serif;fill:#87deaa;fill-opacity:1;stroke:none;stroke-width:0.215063"
+         x="169.52054"
+         y="23.652191"
+         id="text698"><tspan
+           sodipodi:role="line"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.60245px;font-family:Dhurjati;-inkscape-font-specification:'Dhurjati, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#87deaa;stroke-width:0.215063"
+           x="169.52054"
+           y="23.652191"
+           id="tspan696">admin</tspan></text>
+    </g>
+    <path
+       id="rect46675-5"
+       style="display:inline;fill:#ffffff;stroke-width:0.0509103"
+       d="m 0.07403937,0.02400367 2.86297003,0.795773 V 5.7948067 l -2.86297003,0.795773 z"
+       sodipodi:nodetypes="ccccc" />
+    <rect
+       style="display:inline;fill:#918a6f;fill-opacity:1;stroke-width:0.0443814"
+       id="rect46675-3"
+       width="2.8629692"
+       height="4.9903135"
+       x="2.9946373"
+       y="0.81213492" />
+  </g>
+</svg>
