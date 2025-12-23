@@ -6,8 +6,23 @@ definePageMeta({
 
 <template>
   <UPageBody>
-    <UPageHeader title="Posts"  />
-    <UPageHero title="Posts"  />
+    <UContainer>
+        <UPageHeader title="Posts"  />
+    </UContainer>
+    <UContainer>
+    <UCard>
+    <template #header>
+      Teste
+    </template>
+
+    body
+
+    <template #footer>
+      <UButton>Criar Novo post</UButton>
+    </template>
+  </UCard>
+  </UContainer>
+    
   </UPageBody>
 </template>
 
