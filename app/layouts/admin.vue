@@ -91,7 +91,7 @@ const items: NavigationMenuItem[][] = [[{
                 :avatar="{
                   src: 'https://github.com/benjamincanac.png'
                 }"
-                :label="collapsed ? undefined : user"
+                :label="collapsed ? undefined : (user ?? undefined)"
                 color="neutral"
                 variant="ghost"
                 class="w-full"
