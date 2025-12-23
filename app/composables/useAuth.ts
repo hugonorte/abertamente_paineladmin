@@ -60,11 +60,11 @@ export const useAuth = () => {
     const getUser = async () => {
         if (!token.value) {
             const storedToken = localStorage.getItem('token');
-
+            
             if (!storedToken) {
                 return;
             }
-
+            
             token.value = storedToken;
         }
         
@@ -72,16 +72,20 @@ export const useAuth = () => {
             method: 'GET' as const,
             headers: { Authorization: `Bearer ${token.value}` },
         };
-
+        
         try{
-            const data = await useFetch(`${apiUrl}/users`, options)
+            const data = await useFetch(`${apiUrl}/user`, options)
             
             // Assuming the API returns an array of users
-            const users = data.data.value as User[];
-            user.value = users[0] ?? null;
-
-            return users[0];
-            
+            const value = data.data.value as { data: User[] } | undefined;
+            const userData = value?.data as User[] | undefined;
+            if (userData && userData[0]) {
+                const firstName = userData[0].first_name;
+                const lastName = userData[0].last_name;
+                const user = `${firstName} ${lastName}`;
+                return user;
+            }
+            return null;
         }
         catch(error){
             console.error(error)
@@ -93,7 +97,7 @@ export const useAuth = () => {
         token.value = null
         user.value = null
         localStorage.removeItem('token')
-        navigateTo('/login')
+        navigateTo('/')
         return void 0
     }
 

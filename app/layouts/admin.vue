@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
 
+const auth = useAuth()
+const user = await auth.getUser()
+const logout = auth.logout
+console.log("QQQQ", user)
+
 defineProps<{
   mode: 'drawer' | 'slideover' | 'modal'
 }>()
@@ -81,16 +86,19 @@ const items: NavigationMenuItem[][] = [[{
           </template>
       
           <template #footer="{ collapsed }">
-            <UButton
-              :avatar="{
-                src: 'https://github.com/benjamincanac.png'
-              }"
-              :label="collapsed ? undefined : 'Benjamin'"
-              color="neutral"
-              variant="ghost"
-              class="w-full"
-              :block="collapsed"
-            />
+            <UPageList>
+              <UButton
+                :avatar="{
+                  src: 'https://github.com/benjamincanac.png'
+                }"
+                :label="collapsed ? undefined : user"
+                color="neutral"
+                variant="ghost"
+                class="w-full"
+                :block="collapsed"
+              />
+              <ULink as="button" @click="logout">Logout</ULink>
+            </UPageList>
           </template>
         </UDashboardSidebar>
         <slot />
