@@ -12,7 +12,9 @@ definePageMeta({
     <UContainer>
     <UCard>
     <template #header>
-      Teste
+      <ULink href="/admin/posts/create">
+        <UButton>Criar Novo post</UButton>
+      </ULink>
     </template>
 
     body
