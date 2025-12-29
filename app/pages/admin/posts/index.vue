@@ -6,25 +6,18 @@ definePageMeta({
 
 <template>
   <UPageBody>
-    <UContainer>
-        <UPageHeader title="Posts"  />
+      <UContainer>
+          <UPageHeader title="Posts"  />
+      </UContainer>
+      <UContainer>
+      <UCard>
+        <template #header>
+          <ULink href="/admin/posts/create">
+            <UButton>Criar Novo post</UButton>
+          </ULink>
+        </template>
+      </UCard>
     </UContainer>
-    <UContainer>
-    <UCard>
-    <template #header>
-      <ULink href="/admin/posts/create">
-        <UButton>Criar Novo post</UButton>
-      </ULink>
-    </template>
-
-    body
-
-    <template #footer>
-      <UButton>Criar Novo post</UButton>
-    </template>
-  </UCard>
-  </UContainer>
-    
   </UPageBody>
 </template>
 
