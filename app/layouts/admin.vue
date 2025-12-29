@@ -4,11 +4,8 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 const auth = useAuth()
 const user = await auth.getUser()
 const logout = auth.logout
-console.log("QQQQ", user)
 
-defineProps<{
-  mode: 'drawer' | 'slideover' | 'modal'
-}>()
+withDefaults(defineProps<{ mode?: 'drawer' | 'slideover' | 'modal' }>(), { mode: 'drawer' })
 
 const items: NavigationMenuItem[][] = [[{
   label: 'Home',
@@ -101,7 +98,9 @@ const items: NavigationMenuItem[][] = [[{
             </UPageList>
           </template>
         </UDashboardSidebar>
-        <slot />
+        <div class="flex-1 overflow-y-auto min-h-screen">
+          <slot />
+        </div>
     </UDashboardGroup>
 </template>
 
