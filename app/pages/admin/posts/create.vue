@@ -6,6 +6,8 @@ import type { FormError, FormSubmitEvent,
   EditorEmojiMenuItem, 
   DropdownMenuItem
  } from '@nuxt/ui'
+import PostReference from '~/components/PostReference.vue';
+import type { BibliographicReference, Footnote } from '~/types/models';
 
 
 definePageMeta({
@@ -64,6 +66,7 @@ const categoryOptions = [
   { label: 'Negócios', value: 'negocios' }
 ]
 
+// Example authors for the input menu ## Alterar para buscar do backend
 const authorOptions = [
   { label: 'Autor 1', value: 'autor_1' },
   { label: 'Autor 2', value: 'autor_2' },
@@ -72,11 +75,34 @@ const authorOptions = [
 
 const toast = useToast()
 
+const bibliographicReferences = reactive<BibliographicReference[]>([])
+const footnotes = reactive<Footnote[]>([])
+
+const addReference = () => {
+  bibliographicReferences.push(
+    { 
+      id: bibliographicReferences.length + 1, 
+      content: "" 
+    }
+  )
+  console.log(bibliographicReferences)
+}
+
+const addFootnote = () => {
+  footnotes.push(
+    { 
+      id: footnotes.length + 1, 
+      content: "" 
+    }
+  )
+  console.log(footnotes)
+}
+
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   toast.add({ title: 'Success', description: 'The form has been submitted.', color: 'success' })
   console.log(event.data)
 }
-
+ console.log(bibliographicReferences.length)
 </script>
 
 <template>
@@ -114,21 +140,45 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
               highlight />
           </UFormField>
           
-          <UFormField label="Conteúdo completo do post" name="content" class="mb-5">
-            <UEditor v-slot="{ editor }" v-model="state.content" content-type="markdown" class="min-h-[300px] border border-gray-300 rounded">
-              <UEditorToolbar :editor="editor" :items="items" />
-            </UEditor>
-          </UFormField>
+          <RichTextEditor v-model="state.content" />
           
           <UFormField label="Categorias" name="categories" class="mb-5">
             <UInputMenu v-model="state.categories" multiple :items="categoryOptions" class="w-full"/>
           </UFormField>
 
-          <template #footer>
-            <UButton type="submit" color="primary">Salvar Post</UButton>
+           <UPageFeature as="h2" title="Referências Bibliográficas" class="bg-accented p-3 mb-8" />
+           <UContainer v-if="bibliographicReferences.length < 1" class="flex items-center justify-center w-full mb-8">
+            Nenhuma referência adicionada
+           </UContainer>
+           <div v-else class="m-0">
+            <UContainer v-for="(referencia, index) in bibliographicReferences" :key="index">
+              <PostReference :title="`Referência ${index + 1}`" />
+            </UContainer>
+           </div>
+           <UContainer class="flex items-center justify-center w-full mb-8">
+             <UButton icon="i-lucide-square-plus" size="md" color="primary" @click="addReference">Adicionar Nova Referência</UButton>
+           </UContainer>
+
+
+           <UPageFeature as="h2" title="Notas de Rodapé" class="bg-accented p-3 mb-8" />
+           <UContainer v-if="footnotes.length < 1" class="flex items-center justify-center w-full mb-8">
+            Nenhuma nota de rodapé adicionada
+           </UContainer>
+           <div v-else class="m-0">
+            <UContainer v-for="(nota, index) in footnotes" :key="index">
+              <PostFootnote :title="`Nota de Rodapé ${index + 1}`" />
+            </UContainer>
+           </div>
+           <UContainer class="flex items-center justify-center w-full mb-8">
+             <UButton icon="i-lucide-square-plus" size="md" color="primary" @click="addFootnote">Adicionar Nova Nota de Rodapé</UButton>
+           </UContainer>
+
+           <template #footer>
+            <UButton icon="i-lucide-save" size="md" type="submit" color="primary">Salvar Post</UButton>
           </template>
         </UCard>
       </UContainer>
     </UForm>
   </UPageBody>
 </template>
+
