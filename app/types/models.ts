@@ -7,3 +7,32 @@ export interface User {
   last_name?: string
   updated_at?: string | Date
 }
+
+export interface Post {
+  id?: number
+  title?: string
+  tldr?: string
+  content?: string
+  image_path?: string
+  author_id?: number
+  category_id?: number
+  published_at?: string | Date
+  status?: string
+  created_at?: string | Date
+  updated_at?: string | Date
+  deleted_at?: string | Date
+}
+
+export interface BibliographicReference {
+  id?: number
+  content?: string
+  created_at?: string | Date
+  updated_at?: string | Date
+}
+
+export interface Footnote {
+  id?: number
+  content?: string
+  created_at?: string | Date
+  updated_at?: string | Date
+}
