@@ -8,10 +8,26 @@ import type { FormError, FormSubmitEvent,
  } from '@nuxt/ui'
 import PostReference from '~/components/PostReference.vue';
 import type { BibliographicReference, Footnote } from '~/types/models';
-
+import { fetchAuthors } from '~/api/author/get'
+import type { Author } from '~/types/models'
+import { ref, computed } from 'vue'
 
 definePageMeta({
   layout: 'admin',
+})
+
+const isLoading = ref<boolean>(false)
+const Authors = ref<Author[]>([])
+
+onMounted(async () => {
+  isLoading.value = true
+  try {
+    Authors.value = await fetchAuthors()
+  } catch (error) {
+    console.error(error)
+  } finally {
+    isLoading.value = false
+  }
 })
 
 const state = reactive({
@@ -67,11 +83,10 @@ const categoryOptions = [
 ]
 
 // Example authors for the input menu ## Alterar para buscar do backend
-const authorOptions = [
-  { label: 'Autor 1', value: 'autor_1' },
-  { label: 'Autor 2', value: 'autor_2' },
-  { label: 'Autor 3', value: 'autor_3' }
-]
+const authorOptions = computed(() => 
+  Authors.value.map((author) => ({ label: author.name, value: author.id }))
+)
+
 
 const toast = useToast()
 
@@ -174,7 +189,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
            </UContainer>
 
            <template #footer>
-            <UButton icon="i-lucide-save" size="md" type="submit" color="primary">Salvar Post</UButton>
+            <UButton icon="i-lucide-save" size="md" type="submit" color="warning">Salvar Post</UButton>
           </template>
         </UCard>
       </UContainer>
