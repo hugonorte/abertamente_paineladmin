@@ -30,7 +30,6 @@ export const useAuth = () => {
     const user = useState<User | null>('user', () => null)
 
     const login = async (email: string, password: string) => {
-        console.log(apiUrl,email, password, "WWW", `${apiUrl}/login`)
         if (!email || !password) return
 
         const options: LoginOptions = {
@@ -39,9 +38,9 @@ export const useAuth = () => {
             credentials: 'include',
             body: JSON.stringify({ email, password }),
         };
-        
-        try{
-            type LoginResponse = { 
+
+        try {
+            type LoginResponse = {
                 access_token: string
                 token_type: string
                 expires_in: number
@@ -52,30 +51,30 @@ export const useAuth = () => {
 
             return data
         }
-        catch(error){
+        catch (error) {
             throw new Error('Login State failed', error as Error)
         }
     }
-    
+
     const getUser = async () => {
         if (!token.value) {
             const storedToken = localStorage.getItem('token');
-            
+
             if (!storedToken) {
                 return;
             }
-            
+
             token.value = storedToken;
         }
-        
+
         const options = {
             method: 'GET' as const,
             headers: { Authorization: `Bearer ${token.value}` },
         };
-        
-        try{
+
+        try {
             const data = await useFetch(`${apiUrl}/user`, options)
-            
+
             // Assuming the API returns an array of users
             const value = data.data.value as { data: User[] } | undefined;
             const userData = value?.data as User[] | undefined;
@@ -87,7 +86,7 @@ export const useAuth = () => {
             }
             return null;
         }
-        catch(error){
+        catch (error) {
             console.error(error)
             return null
         }
@@ -106,18 +105,18 @@ export const useAuth = () => {
             method: 'POST' as const,
             credentials: 'include' as RequestCredentials,
         };
-        
-        try{
-            type RefreshResponse = { 
+
+        try {
+            type RefreshResponse = {
                 access_token: string
                 token_type: string
                 expires_in: number
             }
             await $fetch<RefreshResponse>(`${apiUrl}/auth/refresh`, options)
-            
+
             return
         }
-        catch(error){
+        catch (error) {
             console.error(error)
             return
         }
