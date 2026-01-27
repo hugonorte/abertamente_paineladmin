@@ -23,6 +23,19 @@ export interface Post {
   deleted_at?: string | Date
 }
 
+export interface Author {
+  id?: number
+  name?: string
+  email?: string
+  bio?: string
+  main_title?: string
+  preferred_social_network?: string
+  preferred_social_network_username?: string
+  created_at?: string | Date
+  updated_at?: string | Date
+  deleted_at?: string | Date
+}
+
 export interface BibliographicReference {
   id?: number
   content?: string
