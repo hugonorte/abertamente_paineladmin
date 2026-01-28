@@ -1,8 +1,8 @@
-import type { Author } from '~/types/models';
+import type { Category } from '~/types/models';
 const config = useRuntimeConfig()
 const apiUrl = config.public.apiBaseUrl;
 
-export async function createAuthor(data: Author) : Promise<Author> {
+export async function createCategory(data: Category) : Promise<Category> {
     const auth = useAuth()
     const token = auth.token.value
     if (!token) {
@@ -24,14 +24,14 @@ export async function createAuthor(data: Author) : Promise<Author> {
             options.headers.Authorization = `Bearer ${token}`;
         }
 
-        const response = await $fetch<Author>(`${apiUrl}/author`, options)
+        const response = await $fetch<Category>(`${apiUrl}/category`, options)
 
         return response
     }
     catch (error) {
         throw createError({
             statusCode: 500,
-            statusMessage: 'Erro ao criar autor',
+            statusMessage: 'Erro ao criar categoria',
         })
     }
 }

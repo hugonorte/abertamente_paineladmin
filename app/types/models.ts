@@ -23,6 +23,14 @@ export interface Post {
   deleted_at?: string | Date
 }
 
+export interface Category {
+  id?: number
+  name?: string
+  created_at?: string | Date
+  updated_at?: string | Date
+  deleted_at?: string | Date
+}
+
 export interface Author {
   id?: number
   name?: string

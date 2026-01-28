@@ -12,25 +12,46 @@ const items: NavigationMenuItem[][] = [[{
   icon: 'i-lucide-house',
   active: true,
   to: '/admin/dashboard'
-}, {
+}, 
+{
   label: 'Posts',
-  icon: 'i-lucide-inbox',
+  icon: 'i-lucide-file-text',
   to: '/admin/posts'
-}, {
+}, 
+{
+  label: 'Autores',
+  icon: 'i-lucide-user',
+  to: '/admin/author'
+},
+{
+  label: 'Categorias',
+  icon: 'i-lucide-tag',
+  to: '/admin/category'
+},
+
+/*
+{
   label: 'Contacts',
   icon: 'i-lucide-users'
-}, {
+}, 
+ {
   label: 'Settings',
   icon: 'i-lucide-settings',
   defaultOpen: true,
-  children: [{
-    label: 'General'
-  }, {
-    label: 'Members'
-  }, {
-    label: 'Notifications'
-  }]
-}], [{
+  children: [
+    {
+      label: 'General'
+    }, 
+    {
+      label: 'Members'
+    }, 
+    {
+      label: 'Notifications'
+    }
+  ]
+} */
+], 
+[{
   label: 'Feedback',
   icon: 'i-lucide-message-circle',
   to: 'https://github.com/nuxt-ui-templates/dashboard',

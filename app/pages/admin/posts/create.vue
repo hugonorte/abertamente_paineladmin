@@ -9,7 +9,9 @@ import type { FormError, FormSubmitEvent,
 import PostReference from '~/components/PostReference.vue';
 import type { BibliographicReference, Footnote } from '~/types/models';
 import { fetchAuthors } from '~/api/author/get'
+import { fetchCategories } from '~/api/category/get'
 import type { Author } from '~/types/models'
+import type { Category } from '~/types/models'
 import { ref, computed } from 'vue'
 
 definePageMeta({
@@ -18,11 +20,13 @@ definePageMeta({
 
 const isLoading = ref<boolean>(false)
 const Authors = ref<Author[]>([])
+const Categories = ref<Category[]>([])
 
 onMounted(async () => {
   isLoading.value = true
   try {
     Authors.value = await fetchAuthors()
+    Categories.value = await fetchCategories()
   } catch (error) {
     console.error(error)
   } finally {
@@ -34,7 +38,7 @@ const state = reactive({
   title: undefined,
   tldr: undefined,
   content: undefined,
-  categories: [] as { label: string; value: string }[],
+  categories: undefined,
   imagePath: undefined,
   author: undefined,
 })
@@ -46,7 +50,7 @@ function validate(state: Partial<Schema>): FormError[] {
   if (!state.title) errors.push({ name: 'title', message: 'O título do post é um campo obrigatório' })
   if (!state.tldr) errors.push({ name: 'tldr', message: 'O resumo do post é um campo obrigatório' })
   if (!state.content) errors.push({ name: 'content', message: 'O conteúdo do post é um campo obrigatório' })
-  if (!state.categories || state.categories.length === 0) errors.push({ name: 'categories', message: 'Pelo menos uma categoria deve ser selecionada' })
+  if (!state.categories || state.categories === undefined) errors.push({ name: 'categories', message: 'Pelo menos uma categoria deve ser selecionada' })
   if (!state.imagePath) errors.push({ name: 'imagePath', message: 'A imagem do post é um campo obrigatório' })
   if (!state.author) errors.push({ name: 'author', message: 'O autor do post é um campo obrigatório' })
   return errors
@@ -74,17 +78,14 @@ const items: EditorToolbarItem[] = [
   { kind: 'link', icon: 'i-lucide-link' }
 ]
 
-// Example categories for the input menu ## Alterar para buscar do backend
-const categoryOptions = [
-  { label: 'Tecnologia', value: 'tecnologia' },
-  { label: 'Educação', value: 'educacao' },
-  { label: 'Saúde', value: 'saude' },
-  { label: 'Negócios', value: 'negocios' }
-]
-
 // Example authors for the input menu ## Alterar para buscar do backend
 const authorOptions = computed(() => 
   Authors.value.map((author) => ({ label: author.name, value: author.id }))
+)
+
+// Example categories for the input menu ## Alterar para buscar do backend
+const categoryOptions = computed(() => 
+  Categories.value.map((category) => ({ label: category.name, value: category.id }))
 )
 
 
@@ -158,7 +159,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           <RichTextEditor v-model="state.content" />
           
           <UFormField label="Categorias" name="categories" class="mb-5">
-            <UInputMenu v-model="state.categories" multiple :items="categoryOptions" class="w-full"/>
+            <USelect v-model="state.categories" :items="categoryOptions" class="w-full" />
           </UFormField>
 
            <UPageFeature as="h2" title="Referências Bibliográficas" class="bg-accented p-3 mb-8" />
