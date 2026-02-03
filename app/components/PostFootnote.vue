@@ -2,6 +2,8 @@
 const props = defineProps({
     title: String,
 })
+
+const description = defineModel('description', { type: String })
 </script>
 
 <template>
