@@ -4,6 +4,7 @@ import type { FormError, FormSubmitEvent,
   EditorSuggestionMenuItem, 
   EditorMentionMenuItem, 
   EditorEmojiMenuItem, 
+  EditorToolbarItem,
   DropdownMenuItem
  } from '@nuxt/ui'
 import PostReference from '~/components/PostReference.vue';
@@ -12,7 +13,22 @@ import { fetchAuthors } from '~/api/author/get'
 import { fetchCategories } from '~/api/category/get'
 import type { Author } from '~/types/models'
 import type { Category } from '~/types/models'
+import { createPost } from '~/api/post/post'
 import { ref, computed } from 'vue'
+import type { Editor } from '@tiptap/vue-3'
+import ImageUpload from './EditorImageUploadExtension'
+import { createBibliographicReferences } from '~/api/bibliographicReference/post';
+import { createFootnote } from '~/api/footnote/post';
+
+
+const customHandlers = {
+  imageUpload: {
+    canExecute: (editor: Editor) => editor.can().insertContent({ type: 'imageUpload' }),
+    execute: (editor: Editor) => editor.chain().focus().insertContent({ type: 'imageUpload' }),
+    isActive: (editor: Editor) => editor.isActive('imageUpload'),
+    isDisabled: undefined
+  }
+} satisfies EditorCustomHandlers
 
 definePageMeta({
   layout: 'admin',
@@ -56,27 +72,86 @@ function validate(state: Partial<Schema>): FormError[] {
   return errors
 }
 
-type EditorToolbarItem =
-  | { kind: 'mark'; mark: string; icon: string }
-  | { kind: 'heading'; level: number; icon: string }
-  | { kind: 'textAlign'; align: string; icon: string }
-  | { kind: 'bulletList'; icon: string }
-  | { kind: 'orderedList'; icon: string }
-  | { kind: 'blockquote'; icon: string }
-  | { kind: 'link'; icon: string }
+type EditorToolbarItemType =
+  EditorToolbarItem<typeof customHandlers>[]
 
-const items: EditorToolbarItem[] = [
-  { kind: 'mark', mark: 'bold', icon: 'i-lucide-bold' },
-  { kind: 'mark', mark: 'italic', icon: 'i-lucide-italic' },
-  { kind: 'heading', level: 1, icon: 'i-lucide-heading-1' },
-  { kind: 'heading', level: 2, icon: 'i-lucide-heading-2' },
-  { kind: 'textAlign', align: 'left', icon: 'i-lucide-align-left' },
-  { kind: 'textAlign', align: 'center', icon: 'i-lucide-align-center' },
-  { kind: 'bulletList', icon: 'i-lucide-list' },
-  { kind: 'orderedList', icon: 'i-lucide-list-ordered' },
-  { kind: 'blockquote', icon: 'i-lucide-quote' },
-  { kind: 'link', icon: 'i-lucide-link' }
-]
+const items: EditorToolbarItemType[] = [
+  [
+    {
+      kind: 'imageUpload',
+      icon: 'i-lucide-image',
+      label: 'Add image',
+      variant: 'soft'
+    }
+  ],
+  [
+    {
+      icon: 'i-lucide-heading',
+      content: {
+        align: 'start'
+      },
+      items: [
+        {
+          kind: 'heading',
+          level: 1,
+          icon: 'i-lucide-heading-1',
+          label: 'Heading 1'
+        },
+        {
+          kind: 'heading',
+          level: 2,
+          icon: 'i-lucide-heading-2',
+          label: 'Heading 2'
+        },
+        {
+          kind: 'heading',
+          level: 3,
+          icon: 'i-lucide-heading-3',
+          label: 'Heading 3'
+        },
+        {
+          kind: 'heading',
+          level: 4,
+          icon: 'i-lucide-heading-4',
+          label: 'Heading 4'
+        }
+      ]
+    }
+  ],
+  [
+    {
+      kind: 'mark',
+      mark: 'bold',
+      icon: 'i-lucide-bold'
+    },
+    {
+      kind: 'mark',
+      mark: 'italic',
+      icon: 'i-lucide-italic'
+    },
+    {
+      kind: 'mark',
+      mark: 'underline',
+      icon: 'i-lucide-underline'
+    },
+    {
+      kind: 'mark',
+      mark: 'strike',
+      icon: 'i-lucide-strikethrough'
+    },
+    {
+      kind: 'mark',
+      mark: 'code',
+      icon: 'i-lucide-code'
+    },
+    { kind: 'textAlign', align: 'left', icon: 'i-lucide-align-left' },
+    { kind: 'textAlign', align: 'center', icon: 'i-lucide-align-center' },
+    { kind: 'bulletList', icon: 'i-lucide-list' },
+    { kind: 'orderedList', icon: 'i-lucide-list-ordered' },
+    { kind: 'blockquote', icon: 'i-lucide-quote' },
+    { kind: 'link', icon: 'i-lucide-link' },
+  ]
+] satisfies EditorToolbarItem<typeof customHandlers>[][]
 
 // Example authors for the input menu ## Alterar para buscar do backend
 const authorOptions = computed(() => 
@@ -88,9 +163,7 @@ const categoryOptions = computed(() =>
   Categories.value.map((category) => ({ label: category.name, value: category.id }))
 )
 
-
 const toast = useToast()
-
 const bibliographicReferences = reactive<BibliographicReference[]>([])
 const footnotes = reactive<Footnote[]>([])
 
@@ -98,27 +171,53 @@ const addReference = () => {
   bibliographicReferences.push(
     { 
       id: bibliographicReferences.length + 1, 
-      content: "" 
+      description: "" 
     }
   )
-  console.log(bibliographicReferences)
 }
 
 const addFootnote = () => {
   footnotes.push(
     { 
       id: footnotes.length + 1, 
-      content: "" 
+      description: "" 
     }
   )
-  console.log(footnotes)
 }
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  toast.add({ title: 'Success', description: 'The form has been submitted.', color: 'success' })
-  console.log(event.data)
+  const formData = new FormData()
+  if (event.data.title) formData.append('title', event.data.title)
+  if (event.data.tldr) formData.append('tldr', event.data.tldr)
+  if (event.data.content) formData.append('content', event.data.content)
+  if (event.data.categories) formData.append('category_id', event.data.categories)
+  if (event.data.imagePath) {
+    const file = Array.isArray(event.data.imagePath) ? event.data.imagePath[0] : event.data.imagePath
+    formData.append('image_path', file)
+  }
+  if (event.data.author) formData.append('author_id', event.data.author)
+  formData.append('status', 'draft')
+  
+  try{
+    const post = await createPost(formData)
+    bibliographicReferences.forEach(async (reference) => {
+      await createBibliographicReferences({
+        post_id: post.id,
+        description: reference.description
+      })
+    })
+    footnotes.forEach(async (footnote) => {
+      await createFootnote({
+        post_id: post.id,
+        description: footnote.description
+      })
+    })
+    toast.add({ title: 'Success', description: 'Post criado com sucesso.', color: 'success' })
+  }
+  catch (error) {
+    toast.add({ title: 'Error', description: 'Erro ao criar post.', color: 'error' })
+  }
 }
- console.log(bibliographicReferences.length)
 </script>
 
 <template>
@@ -133,6 +232,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             <h2 class="text-lg font-medium">Novo Post</h2>
           </template>
 
+
           <UFormField label="Título" name="title" class="mb-5">
             <UInput v-model="state.title" variant="subtle"  placeholder="Digite o título do post" class="w-full" />
           </UFormField>
@@ -145,7 +245,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             <UTextarea v-model="state.tldr" color="neutral" variant="subtle" placeholder="Resumo..." class="w-full"/>
           </UFormField>
           
-          <UFormField label="Resuma o contéúdo do post em poucas palavras" name="imagePath" class="mb-5">
+          <UFormField label="Imagem de capa" name="imagePath" class="mb-5">
             <UFileUpload 
               v-model="state.imagePath" 
               accept="image/*" 
@@ -155,8 +255,26 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
               color="primary" 
               highlight />
           </UFormField>
-          
-          <RichTextEditor v-model="state.content" />
+
+
+          <h3>Conteúdo</h3>
+          <UEditor
+            v-slot="{ editor }"
+            v-model="state.content"
+            :extensions="[ImageUpload]"
+            :handlers="customHandlers"
+            content-type="html"
+            :ui="{ base: 'p-8 sm:px-16' }"
+            class="w-full min-h-74"
+            placeholder="Escreva aqui..."
+            
+          >
+            <UEditorToolbar
+              :editor="editor"
+              :items="items"
+              class="border-b border-muted py-2 px-8 sm:px-16 overflow-x-auto"
+            />
+          </UEditor>
           
           <UFormField label="Categorias" name="categories" class="mb-5">
             <USelect v-model="state.categories" :items="categoryOptions" class="w-full" />

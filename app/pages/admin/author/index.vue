@@ -53,7 +53,7 @@ const columns: TableColumn<Author>[] = [
           </ULink>
         </template>
       </UCard>
-      <UAlert v-if="isLoading" color="info" icon="i-heroicons-refresh-cw" :title="'Carregando...'" />
+      <UAlert v-if="isLoading" color="info" icon="i-lucide-loader-circle" :title="'Carregando...'" />
       <div v-else class="flex flex-col flex-1 w-full">
         <div class="flex px-4 py-3.5 border-b border-accented">
           <UInput v-model="globalFilter" class="max-w-sm" placeholder="Buscar..." />

@@ -46,14 +46,16 @@ export interface Author {
 
 export interface BibliographicReference {
   id?: number
-  content?: string
+  post_id?: number
+  description?: string
   created_at?: string | Date
   updated_at?: string | Date
 }
 
 export interface Footnote {
   id?: number
-  content?: string
+  post_id?: number
+  description?: string
   created_at?: string | Date
   updated_at?: string | Date
 }
