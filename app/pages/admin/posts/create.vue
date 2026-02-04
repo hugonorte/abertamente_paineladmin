@@ -20,6 +20,10 @@ import ImageUpload from './EditorImageUploadExtension'
 import { createBibliographicReferences } from '~/api/bibliographicReference/post';
 import { createFootnote } from '~/api/footnote/post';
 
+// Define extensions and handlers OUTSIDE the component scope.
+// This ensures they are only created ONCE when the module loads,
+// preventing the "different instances of a keyed plugin" error and avoiding Vue reactivity.
+const editorExtensions = [ImageUpload]
 
 const customHandlers = {
   imageUpload: {
@@ -32,6 +36,7 @@ const customHandlers = {
 
 definePageMeta({
   layout: 'admin',
+  ssr: false, // Ensure this page is client-side only
 })
 
 const isLoading = ref<boolean>(false)
@@ -259,15 +264,15 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
           <h3>Conteúdo</h3>
           <UEditor
+            key="post-content-editor"
             v-slot="{ editor }"
             v-model="state.content"
-            :extensions="[ImageUpload]"
+            :extensions="editorExtensions"
             :handlers="customHandlers"
             content-type="html"
             :ui="{ base: 'p-8 sm:px-16' }"
             class="w-full min-h-74"
             placeholder="Escreva aqui..."
-            
           >
             <UEditorToolbar
               :editor="editor"
@@ -286,7 +291,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
            </UContainer>
            <div v-else class="m-0">
             <UContainer v-for="(referencia, index) in bibliographicReferences" :key="index">
-              <PostReference :title="`Referência ${index + 1}`" />
+              <PostReference :title="`Referência ${index + 1}`" v-model:description="referencia.description" />
             </UContainer>
            </div>
            <UContainer class="flex items-center justify-center w-full mb-8">
@@ -300,7 +305,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
            </UContainer>
            <div v-else class="m-0">
             <UContainer v-for="(nota, index) in footnotes" :key="index">
-              <PostFootnote :title="`Nota de Rodapé ${index + 1}`" />
+              <PostFootnote :title="`Nota de Rodapé ${index + 1}`" v-model:description="nota.description" />
             </UContainer>
            </div>
            <UContainer class="flex items-center justify-center w-full mb-8">

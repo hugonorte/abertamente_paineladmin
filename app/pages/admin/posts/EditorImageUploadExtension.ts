@@ -11,33 +11,45 @@ declare module '@tiptap/core' {
   }
 }
 
-export const ImageUpload = Node.create({
-  name: 'imageUpload',
-  group: 'block',
-  atom: true,
-  draggable: true,
-  addAttributes() {
-    return {}
-  },
-  parseHTML() {
-    return [{
-      tag: 'div[data-type="image-upload"]'
-    }]
-  },
-  renderHTML({ HTMLAttributes }) {
-    return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'image-upload' })]
-  },
-  addNodeView(): NodeViewRenderer {
-    return VueNodeViewRenderer(ImageUploadNodeComponent)
-  },
-  addCommands() {
-    return {
-      insertImageUpload: () => ({ commands }: CommandProps) => {
-        return commands.insertContent({ type: this.name })
+// Simple singleton pattern within the module
+let imageUploadInstance: any = null
+
+function getOrCreateImageUploadExtension() {
+  if (imageUploadInstance) {
+    return imageUploadInstance
+  }
+
+  imageUploadInstance = Node.create({
+    name: 'imageUpload',
+    group: 'block',
+    atom: true,
+    draggable: true,
+    addAttributes() {
+      return {}
+    },
+    parseHTML() {
+      return [{
+        tag: 'div[data-type="image-upload"]'
+      }]
+    },
+    renderHTML({ HTMLAttributes }) {
+      return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'image-upload' })]
+    },
+    addNodeView(): NodeViewRenderer {
+      return VueNodeViewRenderer(ImageUploadNodeComponent)
+    },
+    addCommands() {
+      return {
+        insertImageUpload: () => ({ commands }: CommandProps) => {
+          return commands.insertContent({ type: this.name })
+        }
       }
     }
-  }
-})
+  })
+
+  return imageUploadInstance
+}
+
+export const ImageUpload = getOrCreateImageUploadExtension()
 
 export default ImageUpload
-

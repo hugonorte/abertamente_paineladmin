@@ -1,13 +1,13 @@
-import type { Post } from '~/types/models';
+import type { BibliographicReference } from '~/types/models';
 const config = useRuntimeConfig()
 const apiUrl = config.public.apiBaseUrl;
 
-interface PostData {
+interface BibliographicReferenceData {
     message: string;
-    post: Post;
+    bibliographicReference: BibliographicReference;
 }
 
-export async function fetchPosts() {
+export async function fetchBibliographicReferences() {
     const auth = useAuth()
     const token = auth.token.value
     if (!token) {
@@ -28,19 +28,19 @@ export async function fetchPosts() {
             options.headers.Authorization = `Bearer ${token}`;
         }
 
-        const response = await $fetch<Post[]>(`${apiUrl}/post`, options)
+        const response = await $fetch<BibliographicReference[]>(`${apiUrl}/bibliographic_reference`, options)
 
         return response
     }
     catch (error) {
         throw createError({
             statusCode: 500,
-            statusMessage: 'Erro ao buscar posts',
+            statusMessage: 'Erro ao buscar referências bibliográficas',
         })
     }
 }
 
-export async function fetchPostsSummary() {
+export async function fetchBibliographicReferenceById(id: number) {
     const auth = useAuth()
     const token = auth.token.value
     if (!token) {
@@ -61,21 +61,19 @@ export async function fetchPostsSummary() {
             options.headers.Authorization = `Bearer ${token}`;
         }
 
-        const response = await $fetch<Post[]>(`${apiUrl}/post-summary`, options)
+        const response = await $fetch<BibliographicReference[]>(`${apiUrl}/bibliographic_reference/${id}`, options)
 
         return response
     }
     catch (error) {
         throw createError({
             statusCode: 500,
-            statusMessage: 'Erro ao buscar posts',
+            statusMessage: 'Erro ao buscar referências bibliográficas',
         })
     }
 }
 
-
-
-export async function fetchPostById(id: string) {
+export async function fetchBibliographicReferenceByPostId(postId: number) {
     const auth = useAuth()
     const token = auth.token.value
     if (!token) {
@@ -96,14 +94,14 @@ export async function fetchPostById(id: string) {
             options.headers.Authorization = `Bearer ${token}`;
         }
 
-        const response = await $fetch<Post>(`${apiUrl}/post/${id}`, options)
+        const response = await $fetch<BibliographicReference[]>(`${apiUrl}/bibliographic_reference/post/${postId}`, options)
 
         return response
     }
     catch (error) {
         throw createError({
             statusCode: 500,
-            statusMessage: 'Erro ao buscar o post',
+            statusMessage: 'Erro ao buscar referências bibliográficas',
         })
     }
 }
