@@ -4,4 +4,10 @@
 .generic_form {
     padding: 1rem;
 }
+.custom-label {
+  color: rgb(70, 117, 198) !important;
+  text-transform: uppercase;
+  font-weight: bold !important;
+  font-size: 0.8rem !important;
+}
 
