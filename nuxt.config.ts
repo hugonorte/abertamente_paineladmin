@@ -10,7 +10,8 @@ export default defineNuxtConfig({
         public: {
             // Disponibiliza a URL da API para o lado do cliente (navegador)
             apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'https://admin.abertamente.net/api',
-            siteName: process.env.NUXT_PUBLIC_SITE_NAME 
+            siteName: process.env.NUXT_PUBLIC_SITE_NAME,
+            publicImagesFolder: process.env.NUXT_PUBLIC_IMAGES_FOLDER || 'images',
         }
     }
 })
