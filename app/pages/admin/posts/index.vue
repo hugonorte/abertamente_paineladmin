@@ -75,7 +75,7 @@ const columns: TableColumn<Post>[] = [
             color: 'primary', 
             size: 'sm', 
             icon:"i-lucide-pencil",
-            to: `/admin/posts/edit/${postId}` ,
+            to: `/admin/posts/${postId}` ,
             label:"Editar"
       })
     }
