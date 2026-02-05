@@ -73,8 +73,6 @@ export async function fetchPostsSummary() {
     }
 }
 
-
-
 export async function fetchPostById(id: string) {
     const auth = useAuth()
     const token = auth.token.value
@@ -103,7 +101,7 @@ export async function fetchPostById(id: string) {
     catch (error) {
         throw createError({
             statusCode: 500,
-            statusMessage: 'Erro ao buscar o post',
+            statusMessage: 'API Erro ao buscar o post',
         })
     }
 }
