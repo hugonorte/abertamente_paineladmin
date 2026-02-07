@@ -13,5 +13,30 @@ export default defineNuxtConfig({
             siteName: process.env.NUXT_PUBLIC_SITE_NAME,
             publicImagesFolder: process.env.NUXT_PUBLIC_IMAGES_FOLDER || 'images',
         }
+    },
+  // Fix for "Adding different instances of a keyed plugin" error
+  // See: https://ui.nuxt.com/components/editor
+  vite: {
+    optimizeDeps: {
+      include: [
+        'prosemirror-state',
+        'prosemirror-transform',
+        'prosemirror-model',
+        'prosemirror-view',
+        'prosemirror-dropcursor',
+        'prosemirror-gapcursor',
+        'prosemirror-history',
+        'prosemirror-keymap',
+        'prosemirror-commands',
+        'prosemirror-schema-list',
+        'prosemirror-inputrules',
+        '@tiptap/pm/state',
+        '@tiptap/pm/model',
+        '@tiptap/pm/view',
+        '@tiptap/pm/transform',
+        '@tiptap/core',
+        '@tiptap/vue-3'
+      ]
     }
+  }
 })
