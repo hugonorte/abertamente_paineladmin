@@ -27,7 +27,7 @@ const columns: TableColumn<Post>[] = [
   {
     accessorKey: 'id',
     header: '#',
-    cell: ({ row }) => `#${row.getValue('id')}`
+    cell: ({ row }) => `#${row.getValue('id') }`
   },
   {
     accessorKey: 'title',
@@ -35,7 +35,7 @@ const columns: TableColumn<Post>[] = [
   },
   {
     accessorKey: 'author_name',
-    header: 'Autor'
+    header: 'Autor',
   },
   {
     accessorKey: 'category_name',
@@ -56,11 +56,11 @@ const columns: TableColumn<Post>[] = [
       const status = row.getValue('status')
       switch (status) {
         case 'published':
-          return h('span', { class: 'text-sm' }, 'Publicado')
+          return h(resolveComponent('UBadge'), { color: 'success', variant: 'subtle', label: 'Publicado' })
         case 'draft':
-          return h('span', { class: 'text-sm' }, 'Rascunho')
+          return h(resolveComponent('UBadge'), { color: 'warning', variant: 'subtle', label: 'Rascunho' })
         case 'archived':
-          return h('span', { class: 'text-sm' }, 'Arquivado')
+          return h(resolveComponent('UBadge'), { color: 'error', variant: 'subtle', label: 'Arquivado' })
         default:
           break;
       }
