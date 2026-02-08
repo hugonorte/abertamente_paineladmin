@@ -14,25 +14,24 @@ import { fetchCategories } from '~/api/category/get'
 import type { Author } from '~/types/models'
 import type { Category } from '~/types/models'
 import { createPost } from '~/api/post/post'
-import { ref, computed } from 'vue'
+import { ref, computed, markRaw } from 'vue'
 import type { Editor } from '@tiptap/vue-3'
-import ImageUpload from './EditorImageUploadExtension'
+import getImageUploadExtension from './EditorImageUploadExtension'
 import { createBibliographicReferences } from '~/api/bibliographicReference/post';
 import { createFootnote } from '~/api/footnote/post';
 
-// Define extensions and handlers OUTSIDE the component scope.
-// This ensures they are only created ONCE when the module loads,
-// preventing the "different instances of a keyed plugin" error and avoiding Vue reactivity.
-const editorExtensions = [ImageUpload]
+// Create a fresh instance of the extension for this component
+// Use markRaw to prevent Vue's reactivity system from wrapping Tiptap objects
+const editorExtensions = markRaw([markRaw(getImageUploadExtension())])
 
-const customHandlers = {
+const customHandlers = markRaw({
   imageUpload: {
     canExecute: (editor: Editor) => editor.can().insertContent({ type: 'imageUpload' }),
     execute: (editor: Editor) => editor.chain().focus().insertContent({ type: 'imageUpload' }),
     isActive: (editor: Editor) => editor.isActive('imageUpload'),
     isDisabled: undefined
   }
-} satisfies EditorCustomHandlers
+}) satisfies EditorCustomHandlers
 
 definePageMeta({
   layout: 'admin',
@@ -218,6 +217,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       })
     })
     toast.add({ title: 'Success', description: 'Post criado com sucesso.', color: 'success' })
+    navigateTo('/admin/posts')
   }
   catch (error) {
     toast.add({ title: 'Error', description: 'Erro ao criar post.', color: 'error' })
@@ -238,19 +238,19 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           </template>
 
 
-          <UFormField label="Título" name="title" class="mb-5">
+          <UFormField label="Título" name="title" class="mb-5" :ui="{ label: 'custom-label' }">
             <UInput v-model="state.title" variant="subtle"  placeholder="Digite o título do post" class="w-full" />
           </UFormField>
           
-          <UFormField label="Autor" name="author" class="mb-5">
+          <UFormField label="Autor" name="author" class="mb-5" :ui="{ label: 'custom-label' }">
             <USelect v-model="state.author" :items="authorOptions" class="w-full" />
           </UFormField>
 
-          <UFormField label="Resuma o contéúdo do post em poucas palavras" name="tldr" class="mb-5">
+          <UFormField label="Resuma o contéúdo do post em poucas palavras" name="tldr" class="mb-5" :ui="{ label: 'custom-label' }">
             <UTextarea v-model="state.tldr" color="neutral" variant="subtle" placeholder="Resumo..." class="w-full"/>
           </UFormField>
           
-          <UFormField label="Imagem de capa" name="imagePath" class="mb-5">
+          <UFormField label="Imagem de capa" name="imagePath" class="mb-8" :ui="{ label: 'custom-label' }">
             <UFileUpload 
               v-model="state.imagePath" 
               accept="image/*" 
@@ -262,7 +262,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           </UFormField>
 
 
-          <h3>Conteúdo</h3>
+          <h3 class="custom-label">Conteúdo</h3>
           <UEditor
             key="post-content-editor"
             v-slot="{ editor }"
@@ -281,11 +281,11 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             />
           </UEditor>
           
-          <UFormField label="Categorias" name="categories" class="mb-5">
+          <UFormField label="Categorias" name="categories" class="mb-5" :ui="{ label: 'custom-label' }">
             <USelect v-model="state.categories" :items="categoryOptions" class="w-full" />
           </UFormField>
 
-           <UPageFeature as="h2" title="Referências Bibliográficas" class="bg-accented p-3 mb-8" />
+           <UPageFeature :ui="{ title: 'custom-label' }" as="h2" title="Referências Bibliográficas" class="bg-accented p-3 mb-8" />
            <UContainer v-if="bibliographicReferences.length < 1" class="flex items-center justify-center w-full mb-8">
             Nenhuma referência adicionada
            </UContainer>
@@ -299,7 +299,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
            </UContainer>
 
 
-           <UPageFeature as="h2" title="Notas de Rodapé" class="bg-accented p-3 mb-8" />
+           <UPageFeature :ui="{ title: 'custom-label' }" as="h2" title="Notas de Rodapé" class="bg-accented p-3 mb-8" />
            <UContainer v-if="footnotes.length < 1" class="flex items-center justify-center w-full mb-8">
             Nenhuma nota de rodapé adicionada
            </UContainer>
