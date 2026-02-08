@@ -14,7 +14,7 @@ export async function updatePost(id: number, data: FormData) : Promise<Post> {
 
     try {
         const options = {
-            method: 'PATCH' as 'PATCH',
+            method: 'POST' as 'POST',
             body: data,
             credentials: 'include' as RequestCredentials,
             headers: {
@@ -26,7 +26,7 @@ export async function updatePost(id: number, data: FormData) : Promise<Post> {
             options.headers.Authorization = `Bearer ${token}`;
         }
 
-        const response = await $fetch<Post>(`${apiUrl}/post`, options)
+        const response = await $fetch<Post>(`${apiUrl}/post/${id}`, options)
 
         return response
     }
