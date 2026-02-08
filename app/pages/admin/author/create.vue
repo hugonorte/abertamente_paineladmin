@@ -75,27 +75,27 @@ async function onSubmit (event: FormSubmitEvent<Schema>) {
               <h2 class="text-lg font-medium">Novo Autor</h2>
             </template>
 
-            <UFormField label="Nome" name="name" class="mb-5">
+            <UFormField label="Nome" name="name" class="mb-5" :ui="{ label: 'custom-label' }">
               <UInput v-model="state.name" variant="subtle"  placeholder="Digite o nome do autor" class="w-full" />
             </UFormField>
             
-            <UFormField label="Email" name="email" class="mb-5">
+            <UFormField label="Email" name="email" class="mb-5" :ui="{ label: 'custom-label' }">
               <UInput v-model="state.email" type="email" variant="subtle"  placeholder="Digite o email do autor" class="w-full" />
             </UFormField>
 
-            <UFormField label="Biografia" name="bio" class="mb-5">
+            <UFormField label="Biografia" name="bio" class="mb-5" :ui="{ label: 'custom-label' }">
               <UTextarea v-model="state.bio" variant="subtle"  placeholder="Digite uma breve biografia do autor" class="w-full" />
             </UFormField>
 
-            <UFormField label="Título Profissional ou Acadêmico Principal (Ex: Doutor, Mestre, etc)" name="main_title" class="mb-5">
+            <UFormField label="Título Profissional ou Acadêmico Principal (Ex: Doutor, Mestre, etc)" name="main_title" class="mb-5" :ui="{ label: 'custom-label' }">
               <UInput v-model="state.main_title" variant="subtle"  placeholder="Digite o título principal do autor" class="w-full" />
             </UFormField>
 
-            <UFormField label="Rede Social onde o autor é mais ativo" name="preferred_social_network" class="mb-5">
+            <UFormField label="Rede Social onde o autor é mais ativo" name="preferred_social_network" class="mb-5" :ui="{ label: 'custom-label' }">
               <UInput v-model="state.preferred_social_network" variant="subtle"  placeholder="Digite a rede social preferida do autor" class="w-full" />
             </UFormField>
 
-            <UFormField label="Nome de Usuário na Rede Social onde o autor é mais ativo" name="preferred_social_network_username" class="mb-5">
+            <UFormField label="Nome de Usuário na Rede Social onde o autor é mais ativo" name="preferred_social_network_username" class="mb-5" :ui="{ label: 'custom-label' }">
               <UInput v-model="state.preferred_social_network_username" variant="subtle"  placeholder="Digite o nome de usuário da rede social preferida do autor" class="w-full" />
             </UFormField>
             <template #footer>
