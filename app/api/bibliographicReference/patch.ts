@@ -2,7 +2,7 @@ import type { BibliographicReference } from '~/types/models';
 const config = useRuntimeConfig()
 const apiUrl = config.public.apiBaseUrl;
 
-export async function updateBibliographicReferences(id: number, data: BibliographicReference) : Promise<BibliographicReference> {
+export async function updateBibliographicReference(id: number, description: string) {
     const auth = useAuth()
     const token = auth.token.value
     if (!token) {
@@ -15,7 +15,10 @@ export async function updateBibliographicReferences(id: number, data: Bibliograp
     try {
         const options = {
             method: 'PATCH' as 'PATCH',
-            body: data,
+            body: {
+                id: id,
+                description: description
+            },
             credentials: 'include' as RequestCredentials,
             headers: {
                 'Accept': 'application/json'
@@ -26,7 +29,7 @@ export async function updateBibliographicReferences(id: number, data: Bibliograp
             options.headers.Authorization = `Bearer ${token}`;
         }
 
-        const response = await $fetch<BibliographicReference>(`${apiUrl}/bibliographic_reference`, options)
+        const response = await $fetch(`${apiUrl}/bibliographic_reference/${id}`, options)
 
         return response
     }
