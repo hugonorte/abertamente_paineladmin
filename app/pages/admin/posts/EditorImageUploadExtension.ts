@@ -11,15 +11,8 @@ declare module '@tiptap/core' {
   }
 }
 
-// Simple singleton pattern within the module
-let imageUploadInstance: any = null
-
-function getOrCreateImageUploadExtension() {
-  if (imageUploadInstance) {
-    return imageUploadInstance
-  }
-
-  imageUploadInstance = Node.create({
+export function getImageUploadExtension() {
+  return Node.create({
     name: 'imageUpload',
     group: 'block',
     atom: true,
@@ -46,10 +39,6 @@ function getOrCreateImageUploadExtension() {
       }
     }
   })
-
-  return imageUploadInstance
 }
 
-export const ImageUpload = getOrCreateImageUploadExtension()
-
-export default ImageUpload
+export default getImageUploadExtension
