@@ -2,11 +2,7 @@
 import type {
   FormError, FormSubmitEvent,
   EditorCustomHandlers,
-  EditorSuggestionMenuItem,
-  EditorMentionMenuItem,
-  EditorEmojiMenuItem,
-  EditorToolbarItem,
-  DropdownMenuItem
+  EditorToolbarItem
 } from '@nuxt/ui'
 import type { Post } from '~/types/models';
 import PostReference from '~/components/PostReference.vue';
@@ -16,39 +12,48 @@ import { fetchCategories } from '~/api/category/get'
 import { fetchPostById } from '~/api/post/get'
 import type { Author } from '~/types/models'
 import type { Category } from '~/types/models'
-import { createPost, updatePost } from '~/api/post/post'
-import { ref, computed, reactive, onMounted } from 'vue' // Ensuring imports are consolidated if needed, or rely on Nuxt auto-imports but keeping structure
+import { updatePost } from '~/api/post/patch'
+import { ref, computed, reactive, onMounted, markRaw } from 'vue' // Ensuring imports are consolidated if needed, or rely on Nuxt auto-imports but keeping structure
 import type { Editor } from '@tiptap/vue-3'
-import ImageUpload from './EditorImageUploadExtension'
+import getImageUploadExtension from './EditorImageUploadExtension'
 import { fetchBibliographicReferenceByPostId } from '~/api/bibliographicReference/get';
 import { fetchFootnoteByPostId } from '~/api/footnote/get';
+import { updateBibliographicReference } from '~/api/bibliographicReference/patch';
+import { createBibliographicReferences } from '~/api/bibliographicReference/post';
+import { deleteBibliographicReference } from '~/api/bibliographicReference/delete';
+import { updateFootnote } from '~/api/footnote/patch';
+import { createFootnote } from '~/api/footnote/post';
+import { deleteFootnote } from '~/api/footnote/delete';
 
 const postId = useRoute().params.id
 const config = useRuntimeConfig()
 
-// Define extensions and handlers OUTSIDE the component scope.
-const editorExtensions = [ImageUpload]
+// Create a fresh instance of the extension for this component
+// Use markRaw to prevent Vue's reactivity system from wrapping Tiptap objects
+const editorExtensions = markRaw([markRaw(getImageUploadExtension())])
 
-const customHandlers = {
+const customHandlers = markRaw({
   imageUpload: {
     canExecute: (editor: Editor) => editor.can().insertContent({ type: 'imageUpload' }),
     execute: (editor: Editor) => editor.chain().focus().insertContent({ type: 'imageUpload' }),
     isActive: (editor: Editor) => editor.isActive('imageUpload'),
     isDisabled: undefined
   }
-} satisfies EditorCustomHandlers
+}) satisfies EditorCustomHandlers
 
 definePageMeta({
   layout: 'admin',
   ssr: false, // Ensure this page is client-side only
 })
 
-const isLoading = ref<boolean>(false)
+const isLoading = ref<boolean>(true)
 const Authors = ref<Author[]>([])
 const Categories = ref<Category[]>([])
 const Post = ref<Post>({})
 const toast = useToast()
+const initialBibliographicReferences = ref<BibliographicReference[]>([])
 const BibliographicReferences = ref<BibliographicReference[]>([])
+const initialFootnotes = ref<Footnote[]>([])
 const Footnotes = ref<Footnote[]>([])
 const currentImage = ref<string | null>(null)
 
@@ -60,7 +65,6 @@ const currentImageUrl = computed(() => {
 })
 
 onMounted(async () => {
-  console.log('Component mounted, starting fetch...')
   isLoading.value = true
   try {
     const post = await fetchPostById(postId as string)
@@ -71,6 +75,7 @@ onMounted(async () => {
     state.content = post.content || ''
     state.author = post.author_id
     state.categories = post.category_id 
+    state.status = post.status
     
     // Check if image_path exists and assign to currentImage NOT state.imagePath
     if (post.image_path) {
@@ -79,8 +84,10 @@ onMounted(async () => {
 
     Authors.value = await fetchAuthors()
     Categories.value = await fetchCategories()
-    BibliographicReferences.value = await fetchBibliographicReferenceByPostId(Post.value.id as number)
-    Footnotes.value = await fetchFootnoteByPostId(Post.value.id as number)
+    initialBibliographicReferences.value = await fetchBibliographicReferenceByPostId(Post.value.id as number)
+    BibliographicReferences.value = initialBibliographicReferences.value.map(ref => ({ ...ref }))
+    initialFootnotes.value = await fetchFootnoteByPostId(Post.value.id as number)
+    Footnotes.value = initialFootnotes.value.map(footnote => ({...footnote}))
   } catch (error) {
     console.error(error)
   } finally {
@@ -95,6 +102,7 @@ const state = reactive({
   categories: undefined as number | undefined,
   imagePath: undefined as any, // Should remain undefined or be a File/FileList
   author: undefined as number | undefined,
+  status: undefined as string | undefined,
 })
 
 type Schema = typeof state
@@ -201,16 +209,23 @@ const authorOptions = computed(() =>
   Authors.value.map((author) => ({ label: author.name, value: author.id }))
 )
 
+const statusOptions = computed(() =>
+  [
+    { label: 'Rascunho', value: 'draft' },
+    { label: 'Publicado', value: 'published' },
+    { label: 'Arquivado', value: 'archived' },
+  ]
+)
+
 // Example categories for the input menu ## Alterar para buscar do backend
 const categoryOptions = computed(() =>
   Categories.value.map((category) => ({ label: category.name, value: category.id }))
 )
 
-
 const addReference = () => {
   BibliographicReferences.value.push(
     {
-      id: BibliographicReferences.value.length + 1,
+      id: (BibliographicReferences.value.length + 1)*-1,
       description: ""
     }
   )
@@ -219,18 +234,21 @@ const addReference = () => {
 const addFootnote = () => {
   Footnotes.value.push(
     {
-      id: Footnotes.value.length + 1,
+      id: (Footnotes.value.length + 1)*-1,
       description: ""
     }
   )
+  console.log("Footnotes", Footnotes.value)
+  console.log("initialFootnotes", initialFootnotes.value)
 }
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   const formData = new FormData()
   // Add _method PUT for Laravel to handle Update with FormData
-  formData.append('_method', 'PUT') 
+  formData.append('_method', 'PATCH') 
 
   if (event.data.title) formData.append('title', event.data.title)
+  if (event.data.status) formData.append('status', event.data.status)
   if (event.data.tldr) formData.append('tldr', event.data.tldr)
   if (event.data.content) formData.append('content', event.data.content)
   if (event.data.categories) {
@@ -243,23 +261,157 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     formData.append('image_path', file)
   }
   if (event.data.author) formData.append('author_id', String(event.data.author))
-  
-  // Note: Status handling - typically updates might carry status or validation. 
-  // Assuming we keep it as it was or it is handled by backend state logic. 
-  // If explicitly 'draft' every time:
-  formData.append('status', 'draft')
 
   try {
     // Use updatePost with the correct ID
     const post = await updatePost(Number(postId), formData)
 
     toast.add({ title: 'Success', description: 'Post atualizado com sucesso.', color: 'success' })
+    navigateTo('/admin/posts')
   }
   catch (error) {
     console.error(error)
     toast.add({ title: 'Error', description: 'Erro ao atualizar post.', color: 'error' })
   }
+
+  
+  
+  
+
 }
+
+const updateReference = async (id: number | undefined) => {
+  const filteredObj = BibliographicReferences.value.filter((reference) => reference.id == id)[0]
+  const updatedDescription = filteredObj?.description
+  if (updatedDescription == "") return
+  if (updatedDescription === undefined) return
+  if (id === undefined) return
+
+  try {
+    const response = await updateBibliographicReference(id !== undefined ? id : 0, updatedDescription)
+    toast.add({ title: 'Success', description: 'Referência atualizada com sucesso.', color: 'success' })
+    
+    // Update the initial list as well to keep them in sync after a successful update
+    const initialIndex = initialBibliographicReferences.value.findIndex(r => r.id === id)
+    const initialItem = initialBibliographicReferences.value[initialIndex]
+    if (initialItem && updatedDescription !== undefined) {
+      initialItem.description = updatedDescription
+    }
+  }
+  catch (error) {
+    console.error(error)
+    toast.add({ title: 'Error', description: 'Erro ao atualizar referência.', color: 'error' })
+  }
+}
+
+const removeReference = async (id: number | undefined) => {
+  if (id === undefined) return
+  if (id < 0) {
+    BibliographicReferences.value = BibliographicReferences.value.filter(r => r.id !== id)
+    return
+  }
+
+  try {
+    await deleteBibliographicReference(id)
+    toast.add({ title: 'Success', description: 'Referência removida com sucesso.', color: 'success' })
+  }
+  catch (error) {
+    console.error(error)
+    toast.add({ title: 'Error', description: 'Erro ao remover referência.', color: 'error' })
+  }
+}
+
+const saveNewReference = async (tempId: number | undefined) => {
+  const reference = BibliographicReferences.value.find(r => r.id === tempId)
+  if (!reference) return
+
+  try {
+    const newRef = await createBibliographicReferences({
+      post_id: Number(postId),
+      description: reference.description
+    })
+    
+    // Substitui o item temporário pelo item retornado do backend
+    const index = BibliographicReferences.value.findIndex(r => r.id === tempId)
+    if (index !== -1) {
+      BibliographicReferences.value[index] = newRef
+      // Adiciona na lista inicial para não ser mais considerado "novo"
+      initialBibliographicReferences.value.push({ ...newRef })
+    }
+    
+    toast.add({ title: 'Success', description: 'Referência salva com sucesso.', color: 'success' })
+  } catch (error) {
+    console.error(error)
+    toast.add({ title: 'Error', description: 'Erro ao salvar referência.', color: 'error' })
+  }
+}
+
+const updateTargetFootnote = async (id: number | undefined) => {
+  const filteredObj = Footnotes.value.filter((reference) => reference.id == id)[0]
+  const updatedDescription = filteredObj?.description
+  if (updatedDescription == "") return
+  if (updatedDescription === undefined) return
+  if (id === undefined) return
+
+  try {
+    const response = await updateFootnote(id, updatedDescription)
+    toast.add({ title: 'Success', description: 'Nota de rodapé atualizada com sucesso.', color: 'success' })
+    
+    // Update the initial list as well to keep them in sync after a successful update
+    const initialIndex = initialFootnotes.value.findIndex(r => r.id === id)
+    const initialItem = initialFootnotes.value[initialIndex]
+    if (initialItem && updatedDescription !== undefined) {
+      initialItem.description = updatedDescription
+    }
+  }
+  catch (error) {
+    console.error(error)
+    toast.add({ title: 'Error', description: 'Erro ao atualizar nota de rodapé.', color: 'error' })
+  }
+}
+
+const removeFootnote = async (id: number | undefined) => {
+  if (id === undefined) return
+  if (id < 0) {
+    Footnotes.value = Footnotes.value.filter(r => r.id !== id)
+    return
+  }
+
+  try {
+    await deleteFootnote(id)
+    toast.add({ title: 'Success', description: 'Nota de rodapé removida com sucesso.', color: 'success' })
+  }
+  catch (error) {
+    console.error(error)
+    toast.add({ title: 'Error', description: 'Erro ao remover nota de rodapé.', color: 'error' })
+  }
+}
+
+const saveNewFootnote = async (tempId: number | undefined) => {
+  const targetFootnote = Footnotes.value.find(r => r.id === tempId)
+  if (!targetFootnote) return
+
+  try {
+    const newRef = await createFootnote({
+      post_id: Number(postId),
+      description: targetFootnote.description
+    })
+    
+    // Substitui o item temporário pelo item retornado do backend
+    const index = Footnotes.value.findIndex(r => r.id === tempId)
+    if (index !== -1) {
+      Footnotes.value[index] = newRef
+      // Adiciona na lista inicial para não ser mais considerado "novo"
+      initialFootnotes.value.push({ ...newRef })
+    }
+    
+    toast.add({ title: 'Success', description: 'Nota de rodapé salva com sucesso.', color: 'success' })
+  } catch (error) {
+    console.error(error)
+    toast.add({ title: 'Error', description: 'Erro ao salvar nota de rodapé.', color: 'error' })
+  }
+}
+
 </script>
       
 <template>
@@ -274,6 +426,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           <h2 class="text-lg font-medium">Editar Post</h2>
         </template>
 
+        <UFormField label="Status" name="status" class="mb-5" :ui="{ label: 'custom-label' }">
+          <USelect v-model="state.status" :items="statusOptions" class="w-full" />
+        </UFormField>
+        
         <UFormField label="Título" name="title" class="mb-5" :ui="{ label: 'custom-label' }">
           <UInput v-model="state.title" variant="subtle"  placeholder="Digite o título do post" class="w-full" />
         </UFormField>
@@ -327,20 +483,34 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         <UFormField label="Categorias" name="categories" class="mb-5" :ui="{ label: 'custom-label' }">
           <USelect v-model="state.categories" :items="categoryOptions" class="w-full" />
         </UFormField>
+        <template #footer>
+          <UButton icon="i-lucide-save" size="md" type="submit" color="warning">Salvar Post</UButton>
+        </template>
+      </UCard>
+    </UContainer >
+  </UForm>
 
+  <UCard>
+    <UContainer>
         <UPageFeature as="h2" title="Referências Bibliográficas" class="bg-accented p-3 mb-8" />
         <UContainer v-if="BibliographicReferences.length < 1" class="flex items-center justify-center w-full mb-8">
           Nenhuma referência adicionada
         </UContainer>
         <div v-else class="m-0">
-          <UContainer v-for="(referencia, index) in BibliographicReferences" :key="referencia.id">
-            <PostReference :title="`Referência ${index + 1}`" v-model:description="referencia.description" />
-          </UContainer>
+            <UContainer v-for="(referencia, index) in BibliographicReferences" :key="referencia.id">
+              <PostReference :title="`Referência ${index + 1}`" v-model:description="referencia.description" />
+              <UContainer class="flex items-center justify-center w-full mb-8 gap-4">
+                <UButton icon="i-lucide-trash" size="sm" color="error" @click="removeReference(referencia.id)">Remover Referência</UButton>
+                <UButton icon="i-lucide-pencil" size="sm" color="info" @click="updateReference(referencia.id)">Atualizar Referência</UButton>
+                <div v-if="!initialBibliographicReferences.some(r => r.id === referencia.id)">
+                  <UButton icon="i-lucide-save" size="sm" color="warning" @click="saveNewReference(referencia.id)">Salvar Referência</UButton>
+                </div>
+              </UContainer>
+            </UContainer>
         </div>
         <UContainer class="flex items-center justify-center w-full mb-8">
           <UButton icon="i-lucide-square-plus" size="md" color="primary" @click="addReference">Adicionar Nova Referência</UButton>
         </UContainer>
-
 
         <UPageFeature as="h2" title="Notas de Rodapé" class="bg-accented p-3 mb-8" />
         <UContainer v-if="Footnotes.length < 1" class="flex items-center justify-center w-full mb-8">
@@ -349,18 +519,20 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         <div v-else class="m-0">
           <UContainer v-for="(nota, index) in Footnotes" :key="nota.id">
             <PostReference :title="`Nota de Rodapé ${index + 1}`" v-model:description="nota.description" />
+             <UContainer class="flex items-center justify-center w-full mb-8 gap-4">
+                <UButton icon="i-lucide-trash" size="sm" color="error" @click="removeFootnote(nota.id)">Remover Nota de Rodapé</UButton>
+                <UButton icon="i-lucide-pencil" size="sm" color="info" @click="updateTargetFootnote(nota.id)">Atualizar Nota de Rodapé</UButton>
+                <div v-if="!initialFootnotes.some(r => r.id === nota.id)">
+                  <UButton icon="i-lucide-save" size="sm" color="warning" @click="saveNewFootnote(nota.id)">Salvar Nota de Rodapé</UButton>
+                </div>
+              </UContainer>
           </UContainer>
         </div>
         <UContainer class="flex items-center justify-center w-full mb-8">
           <UButton icon="i-lucide-square-plus" size="md" color="primary" @click="addFootnote">Adicionar Nova Nota de Rodapé</UButton>
         </UContainer>
-
-          <template #footer>
-          <UButton icon="i-lucide-save" size="md" type="submit" color="warning">Salvar Post</UButton>
-        </template>
-      </UCard>
-    </UContainer>
-  </UForm>
+    </UContainer >
+  </UCard>
 </UPageBody>
 </template>
 
