@@ -2,7 +2,7 @@ import type { Footnote } from '~/types/models';
 const config = useRuntimeConfig()
 const apiUrl = config.public.apiBaseUrl;
 
-export async function updateFootnote(id: number, data: Footnote) : Promise<Footnote> {
+export async function updateFootnote(id: number, description: string) {
     const auth = useAuth()
     const token = auth.token.value
     if (!token) {
@@ -15,7 +15,10 @@ export async function updateFootnote(id: number, data: Footnote) : Promise<Footn
     try {
         const options = {
             method: 'PATCH' as 'PATCH',
-            body: data,
+            body: {
+                id: id,
+                description: description
+            },
             credentials: 'include' as RequestCredentials,
             headers: {
                 'Accept': 'application/json'
@@ -26,14 +29,14 @@ export async function updateFootnote(id: number, data: Footnote) : Promise<Footn
             options.headers.Authorization = `Bearer ${token}`;
         }
 
-        const response = await $fetch<Footnote>(`${apiUrl}/footnote`, options)
+        const response = await $fetch(`${apiUrl}/footnote/${id}`, options)
 
         return response
     }
     catch (error) {
         throw createError({
             statusCode: 500,
-            statusMessage: 'Erro ao atualizar nota de pé de página',
+            statusMessage: 'Erro ao atualizar nota de rodapé',
         })
     }
 }
