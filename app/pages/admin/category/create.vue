@@ -60,7 +60,7 @@ async function onSubmit (event: FormSubmitEvent<Schema>) {
               <h2 class="text-lg font-medium">Nova Categoria</h2>
             </template>
 
-            <UFormField label="Nome" name="name" class="mb-5">
+            <UFormField label="Nome" name="name" class="mb-5" :ui="{ label: 'custom-label' }">
               <UInput v-model="state.name" variant="subtle"  placeholder="Digite o nome da categoria" class="w-full" />
             </UFormField>
             
