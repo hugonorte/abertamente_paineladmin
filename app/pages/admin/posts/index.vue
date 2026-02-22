@@ -1,6 +1,7 @@
 <script setup lang="ts">
 definePageMeta({
   layout: 'admin',
+  middleware: 'auth',
 })
 
 import { ref, onMounted, h, resolveComponent } from 'vue'

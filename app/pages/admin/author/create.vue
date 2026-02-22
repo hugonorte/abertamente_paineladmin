@@ -11,6 +11,7 @@ import { createAuthor } from '~/api/author/post';
 
 definePageMeta({
   layout: 'admin',
+  middleware: 'auth',
 })
 
 const state = reactive({

@@ -11,6 +11,7 @@ import { createCategory } from '~/api/category/post';
 
 definePageMeta({
   layout: 'admin',
+  middleware: 'auth',
 })
 
 const state = reactive({

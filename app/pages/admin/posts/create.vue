@@ -35,6 +35,7 @@ const customHandlers = markRaw({
 
 definePageMeta({
   layout: 'admin',
+  middleware: 'auth',
   ssr: false, // Ensure this page is client-side only
 })
 
