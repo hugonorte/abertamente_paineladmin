@@ -52,12 +52,13 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center gap-4 p-4">
+  <div class="loginbox">
     <UPageCard class="w-full max-w-md">
+      <div class="logo">
+        <Logo class="h-5 w-auto shrink-0" />
+      </div>
       <UAuthForm
         :schema="schema"
-        title="Login"
-        icon="i-lucide-user"
         :fields="fields"
         :submit="{
           label: 'Fazer Login',
@@ -67,3 +68,19 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     </UPageCard>
   </div>
 </template>
+
+<style scoped>
+.loginbox {
+ width:100vw;
+ height:100vh;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+}
+.logo {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:20px;
+}
+</style>
