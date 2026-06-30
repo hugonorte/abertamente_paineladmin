@@ -1,7 +1,5 @@
 import jwt_decode from "jwt-decode";
 import type { User } from "~/types/models";
-const config = useRuntimeConfig()
-const apiUrl = config.public.apiBaseUrl
 
 type LoginOptions = {
     method: 'POST' | 'GET'
@@ -11,14 +9,13 @@ type LoginOptions = {
 }
 
 export const useAuth = () => {
+    const config = useRuntimeConfig()
+    const apiUrl = config.public.apiBaseUrl
     const token = useState<string | null>('token', () => null)
 
     const decodedTokenValue = async () => {
-        if (!token.value) {
-            const storedToken = localStorage.getItem('token');
-            if (storedToken) {
-                token.value = storedToken;
-            }
+        if (!token.value && import.meta.client) {
+            await refreshToken();
         }
         if (token.value) {
             return await jwt_decode(token.value);
@@ -47,7 +44,6 @@ export const useAuth = () => {
             }
             const data = await $fetch<LoginResponse>(`${apiUrl}/login`, options)
             token.value = data.access_token
-            localStorage.setItem('token', data.access_token)
 
             return data
         }
@@ -57,14 +53,12 @@ export const useAuth = () => {
     }
 
     const getUser = async () => {
+        if (!token.value && import.meta.client) {
+            await refreshToken();
+        }
+
         if (!token.value) {
-            const storedToken = localStorage.getItem('token');
-
-            if (!storedToken) {
-                return;
-            }
-
-            token.value = storedToken;
+            return null;
         }
 
         const options = {
@@ -79,10 +73,8 @@ export const useAuth = () => {
             const value = data.data.value as { data: User[] } | undefined;
             const userData = value?.data as User[] | undefined;
             if (userData && userData[0]) {
-                const firstName = userData[0].first_name;
-                const lastName = userData[0].last_name;
-                const user = `${firstName} ${lastName}`;
-                return user;
+                user.value = userData[0];
+                return user.value;
             }
             return null;
         }
@@ -95,7 +87,6 @@ export const useAuth = () => {
     const logout = () => {
         token.value = null
         user.value = null
-        localStorage.removeItem('token')
         navigateTo('/')
         return void 0
     }
@@ -112,8 +103,8 @@ export const useAuth = () => {
                 token_type: string
                 expires_in: number
             }
-            await $fetch<RefreshResponse>(`${apiUrl}/auth/refresh`, options)
-
+            const data = await $fetch<RefreshResponse>(`${apiUrl}/auth/refresh`, options)
+            token.value = data.access_token
             return
         }
         catch (error) {

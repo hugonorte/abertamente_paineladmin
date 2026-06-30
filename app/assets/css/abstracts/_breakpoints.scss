@@ -1,0 +1,48 @@
+@use "sass:map";
+
+$breakpoints: (
+  'xs': 0,
+  'sm': 576px,
+  'md': 768px,
+  'lg': 992px,
+  'xl': 1200px,
+  'xxl': 1400px,
+);
+
+// Função auxiliar para buscar o valor no mapa
+@function breakpoint-min($name, $breakpoints: $breakpoints) {
+  $min: map.get($breakpoints, $name);
+  
+  // Substituímos o if() inline pela diretiva @if
+  @if $min != 0 {
+    @return $min;
+  } @else {
+    @return null;
+  }
+}
+
+// Mixin principal para facilitar a criação do Media Query (Mobile First)
+@mixin media-up($name, $breakpoints: $breakpoints) {
+  $min: breakpoint-min($name, $breakpoints);
+  @if $min {
+    @media (min-width: $min) {
+      @content;
+    }
+  } @else {
+    @content;
+  }
+}
+
+// Opcional: Mixin para media queries voltados para baixo (max-width)
+@mixin media-down($name, $breakpoints: $breakpoints) {
+  $max: map.get($breakpoints, $name);
+  @if $max {
+    // Subtrai 0.02px para evitar conflitos exatos de pixel no navegador
+    @media (max-width: #{$max - 0.02px}) {
+      @content;
+    }
+  } @else {
+    @content;
+  }
+}
+

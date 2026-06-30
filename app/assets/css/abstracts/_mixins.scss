@@ -1,0 +1,28 @@
+// abstracts/_mixins.scss
+
+@use 'breakpoints' as *;
+@use 'sass:map'; // <- importa módulo de funções de mapa
+
+@mixin respond($breakpoint) {
+  $value: map.get($breakpoints, $breakpoint);
+
+  @if $value != null {
+    @media (min-width: $value) {
+      @content;
+    }
+  } @else {
+    @warn "🚨 Breakpoint `#{$breakpoint}` não encontrado!";
+  }
+}
+
+@mixin respond-max($breakpoint) {
+  $value: map.get($breakpoints, $breakpoint);
+
+  @if $value != null {
+    @media (max-width: $value) {
+      @content;
+    }
+  } @else {
+    @warn "🚨 Breakpoint `#{$breakpoint}` não encontrado!";
+  }
+}
