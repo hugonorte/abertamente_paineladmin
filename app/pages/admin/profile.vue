@@ -8,7 +8,7 @@
             <template #header>
               <h3 class="text-lg font-semibold">Meus Dados</h3>
             </template>
-            <div class="space-y-4" v-if="user">
+            <div v-if="user" class="space-y-4">
               <div>
                 <span class="font-medium">Nome:</span> {{ user.full_name || `${user.first_name} ${user.last_name}` }}
               </div>

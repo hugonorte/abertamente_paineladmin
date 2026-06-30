@@ -1,9 +1,11 @@
-<script setup>
-const props = defineProps({
-    title: String,
+<script setup lang="ts">
+withDefaults(defineProps<{
+  title?: string
+}>(), {
+  title: ''
 })
 
-const description = defineModel('description', { type: String })
+const description = defineModel<string>('description')
 </script>
 
 <template>
@@ -11,6 +13,6 @@ const description = defineModel('description', { type: String })
         <p class="w-full">
             <UPageFeature as="h5" :title="title" class="p-3" />
         </p>
-        <UTextarea color="neutral" variant="subtle" placeholder="Digite a referência aqui..." class="w-full" v-model="description" name="description"/>
+        <UTextarea v-model="description" class="w-full" color="neutral" variant="subtle" placeholder="Digite a referência aqui..." name="description"/>
     </UContainer>
 </template>

@@ -14,7 +14,7 @@ export async function createPost(data: FormData) : Promise<Post> {
 
     try {
         const options = {
-            method: 'POST' as 'POST',
+            method: 'POST' as const,
             body: data,
             credentials: 'include' as RequestCredentials,
             headers: {

@@ -14,7 +14,7 @@ export async function updateBibliographicReference(id: number, description: stri
 
     try {
         const options = {
-            method: 'PATCH' as 'PATCH',
+            method: 'PATCH' as const,
             body: {
                 id: id,
                 description: description

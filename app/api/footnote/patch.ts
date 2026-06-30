@@ -14,7 +14,7 @@ export async function updateFootnote(id: number, description: string) {
 
     try {
         const options = {
-            method: 'PATCH' as 'PATCH',
+            method: 'PATCH' as const,
             body: {
                 id: id,
                 description: description

@@ -123,8 +123,8 @@ const logoutLink = {
               variant="ghost" 
               :icon="logoutLink.icon"
               :label="collapsed ? undefined : logoutLink.label"
-              @click="logoutLink.click"
               :block="collapsed"
+              @click="logoutLink.click"
             />
           </UPageList>
         </template>

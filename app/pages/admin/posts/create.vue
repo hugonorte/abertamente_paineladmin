@@ -8,11 +8,9 @@ import type { FormError, FormSubmitEvent,
   DropdownMenuItem
  } from '@nuxt/ui'
 import PostReference from '~/components/PostReference.vue';
-import type { BibliographicReference, Footnote } from '~/types/models';
+import type { BibliographicReference, Footnote, Author , Category  } from '~/types/models';
 import { fetchAuthors } from '~/api/author/get'
 import { fetchCategories } from '~/api/category/get'
-import type { Author } from '~/types/models'
-import type { Category } from '~/types/models'
 import { createPost } from '~/api/post/post'
 import { ref, computed, markRaw } from 'vue'
 import type { Editor } from '@tiptap/vue-3'
@@ -292,7 +290,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
            </UContainer>
            <div v-else class="m-0">
             <UContainer v-for="(referencia, index) in bibliographicReferences" :key="index">
-              <PostReference :title="`Referência ${index + 1}`" v-model:description="referencia.description" />
+              <PostReference v-model:description="referencia.description" :title="`Referência ${index + 1}`" />
             </UContainer>
            </div>
            <UContainer class="flex items-center justify-center w-full mb-8">
@@ -306,7 +304,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
            </UContainer>
            <div v-else class="m-0">
             <UContainer v-for="(nota, index) in footnotes" :key="index">
-              <PostFootnote :title="`Nota de Rodapé ${index + 1}`" v-model:description="nota.description" />
+              <PostFootnote v-model:description="nota.description" :title="`Nota de Rodapé ${index + 1}`" />
             </UContainer>
            </div>
            <UContainer class="flex items-center justify-center w-full mb-8">

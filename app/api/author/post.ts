@@ -14,7 +14,7 @@ export async function createAuthor(data: Author) : Promise<Author> {
 
     try {
         const options = {
-            method: 'POST' as 'POST',
+            method: 'POST' as const,
             body: data,
             credentials: 'include' as RequestCredentials,
             headers: {} as Record<string, string>,

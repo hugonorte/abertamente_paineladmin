@@ -1,13 +1,13 @@
 <script setup lang="ts">
-definePageMeta({
-  layout: 'admin',
-  middleware: 'auth',
-})
-
 import { ref, onMounted, h, resolveComponent } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import type { Post } from '~/types/models'
 import { fetchPostsSummary } from '~/api/post/get'
+
+definePageMeta({
+  layout: 'admin',
+  middleware: 'auth',
+})
 
 const posts = ref<Post[]>([])
 const isLoading = ref<boolean>(false)

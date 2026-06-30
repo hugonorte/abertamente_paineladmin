@@ -1,13 +1,13 @@
 <script setup lang="ts">
-definePageMeta({
-  layout: 'admin',
-  middleware: 'auth',
-})
-
 import { ref, onMounted } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import type { Category } from '~/types/models'
 import { fetchCategories } from '~/api/category/get'
+
+definePageMeta({
+  layout: 'admin',
+  middleware: 'auth',
+})
 
 const Categories = ref<Category[]>([])
 const isLoading = ref<boolean>(false)

@@ -14,7 +14,7 @@ export async function createFootnote(data: Footnote) : Promise<Footnote> {
 
     try {
         const options = {
-            method: 'POST' as 'POST',
+            method: 'POST' as const,
             body: data,
             credentials: 'include' as RequestCredentials,
             headers: {

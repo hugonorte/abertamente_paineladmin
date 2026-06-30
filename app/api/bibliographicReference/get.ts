@@ -19,7 +19,7 @@ export async function fetchBibliographicReferences() {
 
     try {
         const options = {
-            method: 'GET' as 'GET',
+            method: 'GET' as const,
             credentials: 'include' as RequestCredentials,
             headers: {} as Record<string, string>,
         };
@@ -52,7 +52,7 @@ export async function fetchBibliographicReferenceById(id: number) {
 
     try {
         const options = {
-            method: 'GET' as 'GET',
+            method: 'GET' as const,
             credentials: 'include' as RequestCredentials,
             headers: {} as Record<string, string>,
         };
@@ -85,7 +85,7 @@ export async function fetchBibliographicReferenceByPostId(postId: number) {
 
     try {
         const options = {
-            method: 'GET' as 'GET',
+            method: 'GET' as const,
             credentials: 'include' as RequestCredentials,
             headers: {} as Record<string, string>,
         };

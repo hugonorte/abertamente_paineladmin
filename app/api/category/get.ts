@@ -19,7 +19,7 @@ export async function fetchCategories() {
 
     try {
         const options = {
-            method: 'GET' as 'GET',
+            method: 'GET' as const,
             credentials: 'include' as RequestCredentials,
             headers: {} as Record<string, string>,
         };

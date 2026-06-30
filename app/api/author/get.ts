@@ -19,7 +19,7 @@ export async function fetchAuthors() {
 
     try {
         const options = {
-            method: 'GET' as 'GET',
+            method: 'GET' as const,
             credentials: 'include' as RequestCredentials,
             headers: {} as Record<string, string>,
         };

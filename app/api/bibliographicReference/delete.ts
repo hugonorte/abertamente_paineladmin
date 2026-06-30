@@ -14,7 +14,7 @@ export async function deleteBibliographicReference(id: number) {
 
     try {
         const options = {
-            method: 'DELETE' as 'DELETE',
+            method: 'DELETE' as const,
             credentials: 'include' as RequestCredentials,
             headers: {
                 'Accept': 'application/json'

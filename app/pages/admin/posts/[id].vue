@@ -4,14 +4,11 @@ import type {
   EditorCustomHandlers,
   EditorToolbarItem
 } from '@nuxt/ui'
-import type { Post } from '~/types/models';
+import type { Post, BibliographicReference, Footnote , Author , Category  } from '~/types/models';
 import PostReference from '~/components/PostReference.vue';
-import type { BibliographicReference, Footnote } from '~/types/models';
 import { fetchAuthors } from '~/api/author/get'
 import { fetchCategories } from '~/api/category/get'
 import { fetchPostById } from '~/api/post/get'
-import type { Author } from '~/types/models'
-import type { Category } from '~/types/models'
 import { updatePost } from '~/api/post/patch'
 import { ref, computed, reactive, onMounted, markRaw } from 'vue' // Ensuring imports are consolidated if needed, or rely on Nuxt auto-imports but keeping structure
 import type { Editor } from '@tiptap/vue-3'
@@ -447,7 +444,7 @@ const saveNewFootnote = async (tempId: number | undefined) => {
           <!-- Show existing image if available -->
             <div v-if="currentImageUrl" class="mb-4 current-image">
               <p class="text-sm text-gray-500 mb-2">Imagem atual:</p>
-              <img :src="currentImageUrl" alt="Capa atual" class="w-48 h-auto rounded-md shadow-sm" />
+              <img :src="currentImageUrl" alt="Capa atual" class="w-48 h-auto rounded-md shadow-sm" >
             </div>
 
           <UFileUpload 
@@ -499,7 +496,7 @@ const saveNewFootnote = async (tempId: number | undefined) => {
         </UContainer>
         <div v-else class="m-0">
             <UContainer v-for="(referencia, index) in BibliographicReferences" :key="referencia.id">
-              <PostReference :title="`Referência ${index + 1}`" v-model:description="referencia.description" />
+              <PostReference v-model:description="referencia.description" :title="`Referência ${index + 1}`" />
               <UContainer class="flex items-center justify-center w-full mb-8 gap-4">
                 <UButton icon="i-lucide-trash" size="sm" color="error" @click="removeReference(referencia.id)">Remover Referência</UButton>
                 <UButton icon="i-lucide-pencil" size="sm" color="info" @click="updateReference(referencia.id)">Atualizar Referência</UButton>
@@ -519,7 +516,7 @@ const saveNewFootnote = async (tempId: number | undefined) => {
         </UContainer>
         <div v-else class="m-0">
           <UContainer v-for="(nota, index) in Footnotes" :key="nota.id">
-            <PostReference :title="`Nota de Rodapé ${index + 1}`" v-model:description="nota.description" />
+            <PostReference v-model:description="nota.description" :title="`Nota de Rodapé ${index + 1}`" />
              <UContainer class="flex items-center justify-center w-full mb-8 gap-4">
                 <UButton icon="i-lucide-trash" size="sm" color="error" @click="removeFootnote(nota.id)">Remover Nota de Rodapé</UButton>
                 <UButton icon="i-lucide-pencil" size="sm" color="info" @click="updateTargetFootnote(nota.id)">Atualizar Nota de Rodapé</UButton>
