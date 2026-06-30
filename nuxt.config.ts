@@ -6,13 +6,18 @@ export default defineNuxtConfig({
   modules: ['@nuxt/eslint', '@nuxt/fonts', '@nuxt/icon','@nuxt/ui'],
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
-
-        public: {
-            apiBaseUrl:  process.env.NODE_ENV === 'production' ? process.env.NUXT_PUBLIC_API_BASE_URL_PROD : process.env.NUXT_PUBLIC_API_BASE_URL,
-            siteName:  process.env.NODE_ENV === 'production' ?  process.env.NUXT_PUBLIC_SITE_NAME_PROD :  process.env.NUXT_PUBLIC_SITE_NAME,
-            publicImagesFolder:  process.env.NODE_ENV === 'production' ? process.env.NUXT_PUBLIC_IMAGES_FOLDER_PROD : process.env.NUXT_PUBLIC_IMAGES_FOLDER,
-        }
-    },
+    public: {
+      apiBaseUrl: process.env.NODE_ENV === 'production' 
+        ? 'https://admin.abertamente.net/api' 
+        : process.env.NUXT_PUBLIC_API_BASE_URL,
+      siteName: process.env.NODE_ENV === 'production' 
+        ? 'AbertaMente Painel' 
+        : process.env.NUXT_PUBLIC_SITE_NAME,
+      publicImagesFolder: process.env.NODE_ENV === 'production' 
+        ? 'https://admin.abertamente.net/storage' 
+        : process.env.NUXT_PUBLIC_IMAGES_FOLDER,
+    }
+  },
   // Fix for "Adding different instances of a keyed plugin" error
   // See: https://ui.nuxt.com/components/editor
   vite: {
