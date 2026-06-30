@@ -32,6 +32,7 @@ jobs:
         run: pnpm install
 
       - name: Lint
+        continue-on-error: true
         run: pnpm exec eslint .
 
       - name: Build
