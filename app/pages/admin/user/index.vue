@@ -134,7 +134,7 @@ const columns: TableColumn<User>[] = [
             </p>
             <template #footer>
               <div class="flex justify-end gap-3">
-                <UButton color="neutral" variant="ghost" @click="() => isDeleteModalOpen = false">Cancelar</UButton>
+                <UButton color="neutral" variant="ghost" @click="isDeleteModalOpen = false">Cancelar</UButton>
                 <UButton color="error" @click="handleDelete">Sim, Excluir</UButton>
               </div>
             </template>

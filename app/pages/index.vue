@@ -65,6 +65,11 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         }"
         @submit="onSubmit"
       />
+      <div class="mt-4 text-center">
+        <NuxtLink to="/esqueci-senha" class="text-sm text-primary hover:underline">
+          Esqueci minha senha
+        </NuxtLink>
+      </div>
     </UPageCard>
   </div>
 </template>
