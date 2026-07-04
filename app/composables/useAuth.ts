@@ -62,18 +62,16 @@ export const useAuth = () => {
         }
 
         const options = {
-            method: 'GET' as const,
+            method: 'POST' as const,
             headers: { Authorization: `Bearer ${token.value}` },
         };
 
         try {
-            const data = await useFetch(`${apiUrl}/user`, options)
+            const data = await $fetch<User>(`${apiUrl}/auth/me`, options)
 
-            // Assuming the API returns an array of users
-            const value = data.data.value as { data: User[] } | undefined;
-            const userData = value?.data as User[] | undefined;
-            if (userData && userData[0]) {
-                user.value = userData[0];
+            // The /auth/me endpoint returns the authenticated user object directly
+            if (data) {
+                user.value = data;
                 return user.value;
             }
             return null;
