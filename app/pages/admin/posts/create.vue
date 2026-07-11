@@ -14,27 +14,25 @@ import { fetchCategories } from '~/api/category/get'
 import { createPost } from '~/api/post/post'
 import { ref, computed, markRaw } from 'vue'
 import type { Editor } from '@tiptap/vue-3'
-import getImageUploadExtension from './EditorImageUploadExtension'
+import ImageUploadExtension from './EditorImageUploadExtension'
 import { createBibliographicReferences } from '~/api/bibliographicReference/post';
 import { createFootnote } from '~/api/footnote/post';
 
-// Create a fresh instance of the extension for this component
 // Use markRaw to prevent Vue's reactivity system from wrapping Tiptap objects
-const editorExtensions = markRaw([markRaw(getImageUploadExtension())])
+const editorExtensions = markRaw([markRaw(ImageUploadExtension)])
 
 const customHandlers = markRaw({
   imageUpload: {
     canExecute: (editor: Editor) => editor.can().insertContent({ type: 'imageUpload' }),
     execute: (editor: Editor) => editor.chain().focus().insertContent({ type: 'imageUpload' }),
     isActive: (editor: Editor) => editor.isActive('imageUpload'),
-    isDisabled: undefined
+    isDisabled: () => false
   }
 }) satisfies EditorCustomHandlers
 
 definePageMeta({
   layout: 'admin',
-  middleware: 'auth',
-  ssr: false, // Ensure this page is client-side only
+  middleware: 'auth'
 })
 
 const isLoading = ref<boolean>(false)

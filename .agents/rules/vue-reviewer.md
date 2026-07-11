@@ -42,6 +42,10 @@ Sempre que analisar um Diff ou Pull Request via GitHub MCP, valide:
    - Verifique se o código tira proveito dos composables nativos do Nuxt (`useFetch`, `useRuntimeConfig`, `useCookie`) em vez de recriar lógicas manuais.
    - Desencoraje fortemente imports manuais desnecessários de componentes (`import X from '@/components...'`), exigindo o uso do Auto-import do Nuxt.
 
+8. **Limpeza de Artefatos Temporários e Debug:**
+   - Analise rigorosamente se a lista de arquivos alterados ou não rastreados (`git status`) contém scripts criados para testes locais, depuração (ex: `test-*.cjs`, `debug.cy.ts`) ou artefatos gerados automaticamente (ex: imagens dentro de `cypress/screenshots/`).
+   - Todos os arquivos identificados como de caráter estritamente temporário ou de debug em sandbox DEVEM ser apagados do sistema de arquivos e expressamente removidos/ignorados do commit. Nunca devem subir para o repositório remoto.
+
 ## 📝 Formato de Saída (Via MCP)
 Ao encontrar um problema, use a ferramenta `github-mcp.create_inline_comment` para:
 - **Nível:** [INFO], [WARNING] ou [BLOCKER].

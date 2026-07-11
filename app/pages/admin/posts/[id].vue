@@ -12,7 +12,7 @@ import { fetchPostById } from '~/api/post/get'
 import { updatePost } from '~/api/post/patch'
 import { ref, computed, reactive, onMounted, markRaw } from 'vue' // Ensuring imports are consolidated if needed, or rely on Nuxt auto-imports but keeping structure
 import type { Editor } from '@tiptap/vue-3'
-import getImageUploadExtension from './EditorImageUploadExtension'
+import ImageUploadExtension from './EditorImageUploadExtension'
 import { fetchBibliographicReferenceByPostId } from '~/api/bibliographicReference/get';
 import { fetchFootnoteByPostId } from '~/api/footnote/get';
 import { updateBibliographicReference } from '~/api/bibliographicReference/patch';
@@ -27,7 +27,7 @@ const config = useRuntimeConfig()
 
 // Create a fresh instance of the extension for this component
 // Use markRaw to prevent Vue's reactivity system from wrapping Tiptap objects
-const editorExtensions = markRaw([markRaw(getImageUploadExtension())])
+const editorExtensions = markRaw([markRaw(ImageUploadExtension)])
 
 const customHandlers = markRaw({
   imageUpload: {

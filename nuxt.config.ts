@@ -38,6 +38,12 @@ export default defineNuxtConfig({
         '@tiptap/pm/model',
         '@tiptap/pm/view',
         '@tiptap/pm/transform',
+        '@tiptap/pm/history',
+        '@tiptap/pm/dropcursor',
+        '@tiptap/pm/gapcursor',
+        '@tiptap/pm/keymap',
+        '@tiptap/pm/commands',
+        '@tiptap/pm/schema-list',
         '@tiptap/core',
         '@tiptap/vue-3'
       ]
