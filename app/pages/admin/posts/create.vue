@@ -68,7 +68,23 @@ function validate(state: Partial<Schema>): FormError[] {
   if (!state.tldr) errors.push({ name: 'tldr', message: 'O resumo do post é um campo obrigatório' })
   if (!state.content) errors.push({ name: 'content', message: 'O conteúdo do post é um campo obrigatório' })
   if (!state.categories || state.categories === undefined) errors.push({ name: 'categories', message: 'Pelo menos uma categoria deve ser selecionada' })
-  if (!state.imagePath) errors.push({ name: 'imagePath', message: 'A imagem do post é um campo obrigatório' })
+  
+  if (!state.imagePath) {
+    errors.push({ name: 'imagePath', message: 'A imagem do post é um campo obrigatório' })
+  } else {
+    const file = Array.isArray(state.imagePath) ? state.imagePath[0] : state.imagePath
+    if (file instanceof File) {
+      if (file.size >= 2 * 1024 * 1024) {
+        errors.push({ name: 'imagePath', message: 'A imagem possui tamanho igual ou maior que 2MB e isso não é permitido' })
+      }
+      
+      const allowedTypes = ['image/png', 'image/jpeg', 'image/avif', 'image/webp']
+      if (!allowedTypes.includes(file.type)) {
+        errors.push({ name: 'imagePath', message: 'Formato de imagem não permitido. Use apenas PNG, JPG, AVIF ou WEBP.' })
+      }
+    }
+  }
+
   if (!state.author) errors.push({ name: 'author', message: 'O autor do post é um campo obrigatório' })
   return errors
 }
@@ -250,10 +266,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           <UFormField label="Imagem de capa" name="imagePath" class="mb-8" :ui="{ label: 'custom-label' }">
             <UFileUpload 
               v-model="state.imagePath" 
-              accept="image/*" 
+              accept="image/png, image/jpeg, image/avif, image/webp" 
               label="Arraste uma imagem ou clique para selecionar" 
               class="w-full min-h-48"
-              description="SVG, PNG, JPG or GIF (max. 2MB)"
+              description="PNG, JPG, AVIF or WEBP (max. 2MB)"
               color="primary" 
               highlight />
           </UFormField>
