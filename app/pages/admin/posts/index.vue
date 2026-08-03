@@ -85,12 +85,18 @@ const columns: TableColumn<Post>[] = [
     cell: ({ row }) => {
       const status = row.getValue('status')
       switch (status) {
-        case 'published':
-          return h(resolveComponent('UBadge'), { color: 'success', variant: 'subtle', label: 'Publicado' })
         case 'draft':
           return h(resolveComponent('UBadge'), { color: 'warning', variant: 'subtle', label: 'Rascunho' })
-        case 'archived':
-          return h(resolveComponent('UBadge'), { color: 'error', variant: 'subtle', label: 'Arquivado' })
+        case 'publishing':
+          return h(resolveComponent('UBadge'), { color: 'info', variant: 'subtle', label: 'Publicando' })
+        case 'published':
+          return h(resolveComponent('UBadge'), { color: 'success', variant: 'subtle', label: 'Publicado' })
+        case 'unpublishing':
+          return h(resolveComponent('UBadge'), { color: 'warning', variant: 'subtle', label: 'Despublicando' })
+        case 'unpublished':
+          return h(resolveComponent('UBadge'), { color: 'neutral', variant: 'subtle', label: 'Despublicado' })
+        case 'error':
+          return h(resolveComponent('UBadge'), { color: 'error', variant: 'subtle', label: 'Erro' })
         default:
           break;
       }
