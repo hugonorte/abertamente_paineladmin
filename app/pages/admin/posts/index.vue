@@ -121,7 +121,7 @@ const columns: TableColumn<Post>[] = [
               size: 'sm',
               icon: 'i-lucide-trash',
               label: 'Deletar',
-              onClick: () => confirmDelete(postId)
+              onClick: () => { if (postId !== undefined) confirmDelete(postId) }
         })
       ])
     }
@@ -160,7 +160,7 @@ const columns: TableColumn<Post>[] = [
             <p>Você está prestes a deletar este post. Esta ação não pode ser desfeita.</p>
             <template #footer>
               <div class="flex justify-end gap-3">
-                <UButton color="neutral" variant="ghost" @click="isDeleteModalOpen = false">Cancelar</UButton>
+                <UButton color="neutral" variant="ghost" @click="() => { isDeleteModalOpen = false }">Cancelar</UButton>
                 <UButton color="error" :loading="isDeleting" @click="handleDelete">Confirmar</UButton>
               </div>
             </template>
