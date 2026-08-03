@@ -210,8 +210,11 @@ const authorOptions = computed(() =>
 const statusOptions = computed(() =>
   [
     { label: 'Rascunho', value: 'draft' },
+    { label: 'Publicando', value: 'publishing' },
     { label: 'Publicado', value: 'published' },
-    { label: 'Arquivado', value: 'archived' },
+    { label: 'Despublicando', value: 'unpublishing' },
+    { label: 'Despublicado', value: 'unpublished' },
+    { label: 'Erro', value: 'error' },
   ]
 )
 
