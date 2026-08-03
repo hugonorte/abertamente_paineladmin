@@ -210,11 +210,8 @@ const authorOptions = computed(() =>
 const statusOptions = computed(() =>
   [
     { label: 'Rascunho', value: 'draft' },
-    { label: 'Publicando', value: 'publishing' },
     { label: 'Publicado', value: 'published' },
-    { label: 'Despublicando', value: 'unpublishing' },
-    { label: 'Despublicado', value: 'unpublished' },
-    { label: 'Erro', value: 'error' },
+    { label: 'Despublicado', value: 'unpublished' }
   ]
 )
 
@@ -427,7 +424,17 @@ const saveNewFootnote = async (tempId: number | undefined) => {
           <h2 class="text-lg font-medium">Editar Post</h2>
         </template>
 
-        <UFormField label="Status" name="status" class="mb-5" :ui="{ label: 'custom-label' }">
+        <UFormField label="Status Atual" class="mb-5" :ui="{ label: 'custom-label' }">
+          <UBadge v-if="Post.status === 'draft'" color="warning" variant="subtle" label="Rascunho" />
+          <UBadge v-else-if="Post.status === 'publishing'" color="info" variant="subtle" label="Publicando" />
+          <UBadge v-else-if="Post.status === 'published'" color="success" variant="subtle" label="Publicado" />
+          <UBadge v-else-if="Post.status === 'unpublishing'" color="warning" variant="subtle" label="Despublicando" />
+          <UBadge v-else-if="Post.status === 'unpublished'" color="neutral" variant="subtle" label="Despublicado" />
+          <UBadge v-else-if="Post.status === 'error'" color="error" variant="subtle" label="Erro" />
+          <UBadge v-else color="neutral" variant="subtle" label="N/A" />
+        </UFormField>
+
+        <UFormField label="Alterar Status" name="status" class="mb-5" :ui="{ label: 'custom-label' }">
           <USelect v-model="state.status" :items="statusOptions" class="w-full" />
         </UFormField>
         
