@@ -15,12 +15,12 @@ definePageMeta({
 })
 
 const state = reactive({
-  name: undefined,
-  email: undefined,
-  bio: undefined,
-  main_title: undefined,
-  preferred_social_network: undefined,
-  preferred_social_network_username: undefined,
+  name: undefined as string | undefined,
+  email: undefined as string | undefined,
+  bio: undefined as string | undefined,
+  main_title: undefined as string | undefined,
+  preferred_social_network: undefined as string | undefined,
+  preferred_social_network_username: undefined as string | undefined,
 })
 
 type Schema = typeof state
@@ -30,9 +30,9 @@ function validate(state: Partial<Schema>): FormError[] {
   if (!state.name) errors.push({ name: 'name', message: 'O nome do autor é um campo obrigatório' })
   if (!state.email) errors.push({ name: 'email', message: 'O email do autor é um campo obrigatório' })
   if (!state.bio) errors.push({ name: 'bio', message: 'A biografia do autor é um campo obrigatório' })
-  if (!state.main_title) errors.push({ name: 'main_title', message: 'O título principal do autor é um campo obrigatório' })
-  if (!state.preferred_social_network) errors.push({ name: 'preferred_social_network', message: 'A rede social preferida do autor é um campo obrigatório' })
-  if (!state.preferred_social_network_username) errors.push({ name: 'preferred_social_network_username', message: 'O nome de usuário da rede social preferida do autor é um campo obrigatório' })
+  if (state.main_title && state.main_title.length < 3) errors.push({ name: 'main_title', message: 'O título principal deve ter pelo menos 3 caracteres' })
+  if (state.preferred_social_network && state.preferred_social_network.length < 2) errors.push({ name: 'preferred_social_network', message: 'A rede social preferida deve ter pelo menos 2 caracteres' })
+  if (state.preferred_social_network_username && state.preferred_social_network_username.length < 2) errors.push({ name: 'preferred_social_network_username', message: 'O nome de usuário deve ter pelo menos 2 caracteres' })
   return errors
 }
 
