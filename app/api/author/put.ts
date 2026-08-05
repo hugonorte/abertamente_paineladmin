@@ -2,12 +2,7 @@ import type { Author } from '~/types/models';
 const config = useRuntimeConfig()
 const apiUrl = config.public.apiBaseUrl;
 
-interface AuthorData {
-    message: string;
-    author: Author;
-}
-
-export async function fetchAuthors() {
+export async function updateAuthor(id: number, data: Partial<Author>) {
     const auth = useAuth()
     const token = auth.token.value
     if (!token) {
@@ -19,34 +14,15 @@ export async function fetchAuthors() {
 
     try {
         const options = {
-            method: 'GET' as const,
+            method: 'PUT' as const,
             credentials: 'include' as RequestCredentials,
             headers: {} as Record<string, string>,
+            body: data
         };
 
         if (token) {
             options.headers.Authorization = `Bearer ${token}`;
         }
-
-        const response = await $fetch<Author[]>(`${apiUrl}/author`, options)
-
-        return response
-    }
-    catch (error) {
-        throw createError({
-            statusCode: 500,
-            statusMessage: 'Erro ao buscar autores',
-        })
-    }
-}
-
-export async function fetchAuthorById(id: number) {
-    try {
-        const options = {
-            method: 'GET' as const,
-            credentials: 'include' as RequestCredentials,
-            headers: {} as Record<string, string>,
-        };
 
         const response = await $fetch<Author>(`${apiUrl}/author/${id}`, options)
 
@@ -55,7 +31,7 @@ export async function fetchAuthorById(id: number) {
     catch (error) {
         throw createError({
             statusCode: 500,
-            statusMessage: 'Erro ao buscar autor',
+            statusMessage: 'Erro ao atualizar autor',
         })
     }
 }

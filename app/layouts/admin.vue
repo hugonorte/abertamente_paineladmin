@@ -45,6 +45,12 @@ const filteredItems = computed<NavigationMenuItem[]>(() => {
       icon: 'i-lucide-users',
       to: '/admin/user',
       roles: ['admin']
+    },
+    {
+      label: 'Meu Perfil de Autor',
+      icon: 'i-lucide-user-pen',
+      to: '/admin/author/me',
+      roles: ['author']
     }
   ];
 
