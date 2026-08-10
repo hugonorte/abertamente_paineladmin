@@ -13,6 +13,8 @@ import { fetchAuthors } from '~/api/author/get'
 import { fetchCategories } from '~/api/category/get'
 import { createPost } from '~/api/post/post'
 import { ref, computed, markRaw } from 'vue'
+import { z } from 'zod'
+import type { FormErrorEvent } from '@nuxt/ui'
 import type { Editor } from '@tiptap/vue-3'
 import ImageUploadExtension from './EditorImageUploadExtension'
 import { createBibliographicReferences } from '~/api/bibliographicReference/post';
@@ -51,42 +53,56 @@ onMounted(async () => {
   }
 })
 
-const state = reactive({
+const schema = z.object({
+  title: z.string({ required_error: 'O título do post é um campo obrigatório' }).min(1, 'O título do post é um campo obrigatório'),
+  tldr: z.string({ required_error: 'O resumo do post é um campo obrigatório' }).min(1, 'O resumo do post é um campo obrigatório'),
+  content: z.string({ required_error: 'O conteúdo do post é um campo obrigatório' }).min(1, 'O conteúdo do post é um campo obrigatório'),
+  categories: z.any({ required_error: 'Pelo menos uma categoria deve ser selecionada' }).refine(val => val !== undefined && val !== null, 'Pelo menos uma categoria deve ser selecionada'),
+  imagePath: z.any({ required_error: 'A imagem do post é um campo obrigatório' })
+    .refine((val) => !!val, { message: 'A imagem do post é um campo obrigatório' })
+    .refine((val) => {
+      const file = Array.isArray(val) ? val[0] : val
+      if (file instanceof File) return file.size < 2 * 1024 * 1024
+      return true
+    }, { message: 'A imagem possui tamanho igual ou maior que 2MB e isso não é permitido' })
+    .refine((val) => {
+      const file = Array.isArray(val) ? val[0] : val
+      if (file instanceof File) {
+        const allowedTypes = ['image/png', 'image/jpeg', 'image/avif', 'image/webp']
+        return allowedTypes.includes(file.type)
+      }
+      return true
+    }, { message: 'Formato de imagem não permitido. Use apenas PNG, JPG, AVIF ou WEBP.' }),
+  author: z.any({ required_error: 'O autor do post é um campo obrigatório' }).refine(val => val !== undefined && val !== null, 'O autor do post é um campo obrigatório'),
+  footnotes: z.array(z.object({
+    id: z.number(),
+    description: z.string().max(255, 'A nota de rodapé não pode ter mais de 255 caracteres').optional()
+  })).default([]),
+  bibliographicReferences: z.array(z.object({
+    id: z.number(),
+    description: z.string().max(255, 'A referência não pode ter mais de 255 caracteres').optional()
+  })).default([]),
+})
+
+type Schema = z.infer<typeof schema>
+
+const state = reactive<Partial<Schema>>({
   title: undefined,
   tldr: undefined,
   content: undefined,
   categories: undefined,
   imagePath: undefined,
   author: undefined,
+  footnotes: [],
+  bibliographicReferences: []
 })
 
-type Schema = typeof state
-
-function validate(state: Partial<Schema>): FormError[] {
-  const errors = []
-  if (!state.title) errors.push({ name: 'title', message: 'O título do post é um campo obrigatório' })
-  if (!state.tldr) errors.push({ name: 'tldr', message: 'O resumo do post é um campo obrigatório' })
-  if (!state.content) errors.push({ name: 'content', message: 'O conteúdo do post é um campo obrigatório' })
-  if (!state.categories || state.categories === undefined) errors.push({ name: 'categories', message: 'Pelo menos uma categoria deve ser selecionada' })
-  
-  if (!state.imagePath) {
-    errors.push({ name: 'imagePath', message: 'A imagem do post é um campo obrigatório' })
-  } else {
-    const file = Array.isArray(state.imagePath) ? state.imagePath[0] : state.imagePath
-    if (file instanceof File) {
-      if (file.size >= 2 * 1024 * 1024) {
-        errors.push({ name: 'imagePath', message: 'A imagem possui tamanho igual ou maior que 2MB e isso não é permitido' })
-      }
-      
-      const allowedTypes = ['image/png', 'image/jpeg', 'image/avif', 'image/webp']
-      if (!allowedTypes.includes(file.type)) {
-        errors.push({ name: 'imagePath', message: 'Formato de imagem não permitido. Use apenas PNG, JPG, AVIF ou WEBP.' })
-      }
-    }
-  }
-
-  if (!state.author) errors.push({ name: 'author', message: 'O autor do post é um campo obrigatório' })
-  return errors
+function onError(event: FormErrorEvent) {
+  toast.add({
+    title: 'Falha na Validação',
+    description: 'Verifique os campos destacados e tente novamente.',
+    color: 'error',
+  })
 }
 
 type EditorToolbarItemType =
@@ -181,22 +197,22 @@ const categoryOptions = computed(() =>
 )
 
 const toast = useToast()
-const bibliographicReferences = reactive<BibliographicReference[]>([])
-const footnotes = reactive<Footnote[]>([])
 
 const addReference = () => {
-  bibliographicReferences.push(
+  if (!state.bibliographicReferences) state.bibliographicReferences = []
+  state.bibliographicReferences.push(
     { 
-      id: bibliographicReferences.length + 1, 
+      id: state.bibliographicReferences.length + 1, 
       description: "" 
     }
   )
 }
 
 const addFootnote = () => {
-  footnotes.push(
+  if (!state.footnotes) state.footnotes = []
+  state.footnotes.push(
     { 
-      id: footnotes.length + 1, 
+      id: state.footnotes.length + 1, 
       description: "" 
     }
   )
@@ -217,17 +233,21 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   
   try{
     const post = await createPost(formData)
-    bibliographicReferences.forEach(async (reference) => {
-      await createBibliographicReferences({
-        post_id: post.id,
-        description: reference.description
-      })
+    state.bibliographicReferences?.forEach(async (reference) => {
+      if (reference.description) {
+        await createBibliographicReferences({
+          post_id: post.id,
+          description: reference.description
+        })
+      }
     })
-    footnotes.forEach(async (footnote) => {
-      await createFootnote({
-        post_id: post.id,
-        description: footnote.description
-      })
+    state.footnotes?.forEach(async (footnote) => {
+      if (footnote.description) {
+        await createFootnote({
+          post_id: post.id,
+          description: footnote.description
+        })
+      }
     })
     toast.add({ title: 'Success', description: 'Post criado com sucesso.', color: 'success' })
     navigateTo('/admin/posts')
@@ -243,7 +263,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     <UContainer >
       <UPageHeader title="Criar Post"  />
     </UContainer>
-    <UForm :validate="validate" :state="state" class="generic_form"   @submit="onSubmit" >
+    <UForm :schema="schema" :state="state" class="generic_form"   @submit="onSubmit" @error="onError">
       <UContainer >
         <UCard>
           <template #header>
@@ -299,12 +319,14 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           </UFormField>
 
            <UPageFeature :ui="{ title: 'custom-label' }" as="h2" title="Referências Bibliográficas" class="bg-accented p-3 mb-8" />
-           <UContainer v-if="bibliographicReferences.length < 1" class="flex items-center justify-center w-full mb-8">
+           <UContainer v-if="!state.bibliographicReferences || state.bibliographicReferences.length < 1" class="flex items-center justify-center w-full mb-8">
             Nenhuma referência adicionada
            </UContainer>
            <div v-else class="m-0">
-            <UContainer v-for="(referencia, index) in bibliographicReferences" :key="index">
-              <PostReference v-model:description="referencia.description" :title="`Referência ${index + 1}`" />
+            <UContainer v-for="(referencia, index) in state.bibliographicReferences" :key="index">
+              <UFormField :name="`bibliographicReferences.${index}.description`" class="w-full">
+                <PostReference v-model:description="referencia.description" :title="`Referência ${index + 1}`" />
+              </UFormField>
             </UContainer>
            </div>
            <UContainer class="flex items-center justify-center w-full mb-8">
@@ -313,12 +335,14 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
 
            <UPageFeature :ui="{ title: 'custom-label' }" as="h2" title="Notas de Rodapé" class="bg-accented p-3 mb-8" />
-           <UContainer v-if="footnotes.length < 1" class="flex items-center justify-center w-full mb-8">
+           <UContainer v-if="!state.footnotes || state.footnotes.length < 1" class="flex items-center justify-center w-full mb-8">
             Nenhuma nota de rodapé adicionada
            </UContainer>
            <div v-else class="m-0">
-            <UContainer v-for="(nota, index) in footnotes" :key="index">
-              <PostFootnote v-model:description="nota.description" :title="`Nota de Rodapé ${index + 1}`" />
+            <UContainer v-for="(nota, index) in state.footnotes" :key="index">
+              <UFormField :name="`footnotes.${index}.description`" class="w-full">
+                <PostFootnote v-model:description="nota.description" :title="`Nota de Rodapé ${index + 1}`" />
+              </UFormField>
             </UContainer>
            </div>
            <UContainer class="flex items-center justify-center w-full mb-8">
