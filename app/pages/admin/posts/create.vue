@@ -55,7 +55,7 @@ onMounted(async () => {
 
 const schema = z.object({
   title: z.string({ required_error: 'O título do post é um campo obrigatório' }).min(1, 'O título do post é um campo obrigatório'),
-  tldr: z.string({ required_error: 'O resumo do post é um campo obrigatório' }).min(1, 'O resumo do post é um campo obrigatório'),
+  tldr: z.string({ required_error: 'O resumo do post é um campo obrigatório' }).min(1, 'O resumo do post é um campo obrigatório').max(255, 'O resumo do post não pode ultrapassar 255 caracteres'),
   content: z.string({ required_error: 'O conteúdo do post é um campo obrigatório' }).min(1, 'O conteúdo do post é um campo obrigatório'),
   categories: z.any({ required_error: 'Pelo menos uma categoria deve ser selecionada' }).refine(val => val !== undefined && val !== null, 'Pelo menos uma categoria deve ser selecionada'),
   imagePath: z.any({ required_error: 'A imagem do post é um campo obrigatório' })
